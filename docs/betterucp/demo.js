@@ -1,1 +1,1 @@
-import { default as script } from '/docs/scripts/betterucp.js'
+import { default as script } from '/scripts/betterucp.js'
