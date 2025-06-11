@@ -7,12 +7,12 @@
     "doc": "docs"
   },
   "scripts": {
-    "concat:sass": "node utils/concat **/style.scss main.scss",
+    "concat:sass": "node utils/concat style/*.scss main.scss",
     "compile:sass": "sass --no-source-map main.scss main.css",
     "prefix:css": "postcss autoprefixer main.css -o main.css",
     "compress:css": "sass main.css:main.css --style compressed",
     "build": "npm run concat:sass && npm run compile:sass && npm run prefix:css && npm run compress:css",
-    "dev:concat": "node utils/concat **/style.scss main.scss",
+    "dev:concat": "node utils/concat style/*.scss main.scss",
     "dev:compile": "sass --watch main.scss main.css",
     "watch:style": "watch \"npm run dev:concat\" style",
     "dev": "conc \"npm run dev:concat\" \"npm run watch:style\" \"npm run dev:compile\""

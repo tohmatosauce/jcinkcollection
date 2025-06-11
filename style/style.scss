@@ -1,28 +1,15 @@
-@use "sass:color";
-@import url("https://fonts.googleapis.com/css2?family=Nunito+Sans:ital,opsz,wdth,wght@0,6..12,95,200..1000;1,6..12,95,200..1000&family=Roboto+Mono:ital,wght@0,100..700;1,100..700&display=swap");
-
 body {
   background-color: #fcfcfc;
   color: #4a4a4a;
   font: 400 16px "Nunito Sans";
+  display: grid;
+  grid-template-columns: auto auto;
+  grid-auto-flow: column;
 }
 
 a {
   text-decoration: none;
-  color: #fe9c67;
-}
-
-.usage a {
-  display: inline-block;
-  border: 2px solid #dedede;
-  background: linear-gradient(90deg, #fcfcfc, #fe9c67) 0%/1000% 100%;
-  padding: 5px 10px;
-  box-sizing: border-box;
-  transition: .45s ease;
-  font: 800 10px "Nunito Sans"
-}
-.usage a:hover {
-  background: linear-gradient(90deg, #fcfcfc, #fe9c67) 0%/500% 100%
+  color: #3b3b3b;
 }
 
 code {
@@ -31,10 +18,15 @@ code {
   margin: 0 2.5px;
 }
 
+.demo {
+  grid-column: 1/span 1;
+}
+
+.usage {
+  grid-column: 2/span 1;
+}
+
 table {
-  margin: 15px auto;
-  max-width: 600px;
-  width: calc(100% - 5vw);
   border: 2px solid #dedede;
   background-color: #f0f0f0;
   border-spacing: 0;
@@ -115,6 +107,19 @@ input:hover {
 
 tr+.h1 td {
   padding-bottom: 0px;
+}
+
+.h1 a {
+  display: inline-block;
+  border: 2px solid #dedede;
+  background: linear-gradient(90deg, #fcfcfc, #fe9c67) 0%/1000% 100%;
+  padding: 5px 10px;
+  box-sizing: border-box;
+  transition: .45s ease;
+  font: 800 10px "Nunito Sans"
+}
+.h1 a:hover {
+  background: linear-gradient(90deg, #fcfcfc, #fe9c67) 0%/500% 100%
 }
 
 select {
