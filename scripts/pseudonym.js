@@ -1,4 +1,4 @@
-function jcinkPseudonym(args) {
+function bc_pseudonym(args) {
   const defaults = { commonclass: '.pseudo', pseudPrefix: '', profilePrefix: 'profile_' }
   const param = { ...defaults, ...args }
 

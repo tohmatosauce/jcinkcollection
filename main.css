@@ -1,3 +1,66 @@
+@charset "UTF-8";
+@import url("https://fonts.googleapis.com/css2?family=Nunito+Sans:ital,opsz,wdth,wght@0,6..12,95,200..1000;1,6..12,95,200..1000&family=Roboto+Mono:ital,wght@0,100..700;1,100..700&display=swap");
+@import url("https://necolas.github.io/normalize.css/8.0.1/normalize.css");
+.tag_container {
+  display: none;
+}
+
+.tag_container[data-visible=true] {
+  display: block;
+}
+
+tag {
+  cursor: pointer;
+}
+
+tag:before {
+  content: "x";
+  margin-right: 5px;
+  font-weight: 600;
+  font-size: 0.85em;
+  vertical-align: text-top;
+}
+
+#tags_preview {
+  margin-bottom: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+tag {
+  padding: 5px 11px;
+  background: #fcfcfc;
+  border: 2px solid #dedede;
+  border-radius: 3px;
+  transition: 1s ease;
+  display: inline-block;
+  background: linear-gradient(90deg, #fcfcfc 50%, #fe9c67) 0%/50% 100%;
+  background-attachment: fixed;
+}
+
+.tag_container {
+  margin: 7px 0;
+}
+.tag_container input {
+  display: none;
+}
+.tag_container label {
+  margin: 2.5px 0px;
+  border: 2px solid #dedede;
+  background: linear-gradient(90deg, #fcfcfc, #fe9c67) 0%/1000% 100%;
+  padding: 5px 10px;
+  display: block;
+  cursor: pointer;
+  transition: 0.35s ease;
+}
+.tag_container label:hover {
+  background: linear-gradient(90deg, #fcfcfc, #fe9c67) 0%/500% 100%;
+}
+.tag_container input:checked + label {
+  background: linear-gradient(90deg, #fcfcfc, #fe9c67) 0%/200% 100%;
+}
+
 html {
   overflow: hidden;
 }
@@ -17,7 +80,7 @@ a {
 
 code {
   font-family: "Roboto Mono";
-  font-size: .85em;
+  font-size: 0.85em;
   margin: 0 2.5px;
 }
 
@@ -38,11 +101,11 @@ td {
   counter-reset: section;
 }
 
-td>p:nth-last-child(1) {
-  margin-block-end: 0px
+td > p:nth-last-child(1) {
+  margin-block-end: 0px;
 }
 
-tr+tr td {
+tr + tr td {
   padding-top: 0px;
 }
 
@@ -51,11 +114,11 @@ td:nth-of-type(1) {
 }
 
 .col1 {
-  grid-template-columns: auto
+  grid-template-columns: auto;
 }
 
 .col1 td {
-  border-right: 0
+  border-right: 0;
 }
 
 @media only screen and (max-width: 600px) {
@@ -63,19 +126,18 @@ td:nth-of-type(1) {
     grid-template-columns: auto;
   }
 }
-
 input {
   border: 2px solid #dedede;
   background: linear-gradient(90deg, #fcfcfc, #fe9c67) 0%/1000% 100%;
   padding: 5px 10px;
   width: 100%;
   box-sizing: border-box;
-  transition: .45s ease;
+  transition: 0.45s ease;
   color: inherit;
 }
 
 input:hover {
-  background: linear-gradient(90deg, #fcfcfc, #fe9c67) 0%/500% 100%
+  background: linear-gradient(90deg, #fcfcfc, #fe9c67) 0%/500% 100%;
 }
 
 .h1 {
@@ -86,7 +148,7 @@ input:hover {
   background-color: #fcfcfc;
   font-weight: 800;
   align-items: center;
-  line-height: 1
+  line-height: 1;
 }
 
 .h1:nth-of-type(1) {
@@ -97,11 +159,11 @@ input:hover {
   border-right: 0;
 }
 
-.h1+tr td {
+.h1 + tr td {
   padding-top: 15px;
 }
 
-tr+.h1 td {
+tr + .h1 td {
   padding-bottom: 0px;
 }
 
@@ -111,12 +173,12 @@ tr+.h1 td {
   background: linear-gradient(90deg, #fcfcfc, #fe9c67) 0%/1000% 100%;
   padding: 5px 10px;
   box-sizing: border-box;
-  transition: .45s ease;
-  font: 800 10px "Nunito Sans"
+  transition: 0.45s ease;
+  font: 800 10px "Nunito Sans";
 }
 
 .h1 a:hover {
-  background: linear-gradient(90deg, #fcfcfc, #fe9c67) 0%/500% 100%
+  background: linear-gradient(90deg, #fcfcfc, #fe9c67) 0%/500% 100%;
 }
 
 select {
@@ -156,15 +218,14 @@ option {
   border-top: 2px solid #dedede;
   padding: 8px;
   background: #fcfcfc;
-  transition: .4s;
-  font-family: "Nunito Sans"
+  transition: 0.4s;
+  font-family: "Nunito Sans";
 }
+
 option:hover {
   background: #f4f4f4;
 }
-// option:focus {
-//   background: #ebebeb;
-// }
+
 option:nth-of-type(1) {
   border-top: 0;
 }
@@ -179,13 +240,13 @@ option::checkmark {
   border: 2px solid #dedede;
   background-color: #fcfcfc;
   cursor: pointer;
-  transition: .35s ease;
+  transition: 0.35s ease;
   font-weight: 800;
   grid-template-columns: auto;
 }
 
 #submit:hover {
-  background: color.adjust(#fe9c67, $lightness: 28%);
+  background: #fff8f5;
 }
 
 #submit button {
@@ -193,14 +254,14 @@ option::checkmark {
   padding: 30px 20px;
   width: 100%;
   box-sizing: border-box;
-  display: block
+  display: block;
 }
 
 #submit td:nth-of-type(1) {
   border-right: 0;
 }
 
-tr+#submit td {
+tr + #submit td {
   padding-bottom: 0px;
 }
 
@@ -214,12 +275,12 @@ tr+#submit td {
   margin: 0px -15px 15px;
   padding: 15px;
   border-bottom: 2px solid #dedede;
-  border-top: 2px solid #dedede
+  border-top: 2px solid #dedede;
 }
 
 .para-start:nth-of-type(1) {
   border-top: 0;
-  margin-top: -15px
+  margin-top: -15px;
 }
 
 .para-sub1 {
@@ -227,7 +288,7 @@ tr+#submit td {
   background: linear-gradient(45deg, #fcfcfc, #ffeee4) 0%/150% 100%;
   padding: 5px 10px;
   box-sizing: border-box;
-  transition: .45s ease;
+  transition: 0.45s ease;
   display: inline-block;
   margin: 0;
   font-weight: 700;
@@ -241,7 +302,7 @@ tr+#submit td {
   border-right: 2px solid #dedede;
 }
 
-.para-sub1+.para-important {
+.para-sub1 + .para-important {
   margin-top: 5px;
 }
 
@@ -250,9 +311,9 @@ tr+#submit td {
   background-color: #fcfcfc;
   padding: 5px 10px;
   box-sizing: border-box;
-  transition: .45s ease;
+  transition: 0.45s ease;
   display: inline-block;
-  margin: 0
+  margin: 0;
 }
 
 span.para-important {
@@ -269,37 +330,35 @@ note {
   font-size: 14px;
   color: #9a9a9a;
   border: 2px solid #dedede;
-  letter-spacing: .06ch;
+  letter-spacing: 0.06ch;
 }
 
-note[def="code"] {
+note[def=code] {
   font-family: "Roboto Mono";
   white-space: pre-wrap;
   word-break: break-word;
 }
 
-note[def~="schema"] {
+note[def~=schema] {
   font-family: "Roboto Mono";
   white-space: pre-wrap;
 }
 
-note[def="caution"] {
-  background: linear-gradient(45deg, #fcfcfc, #f86d593b) 0% / 150% 100%;
+note[def=caution] {
+  background: linear-gradient(45deg, #fcfcfc, rgba(248, 109, 89, 0.231372549)) 0%/150% 100%;
   border-color: #d4b9b9;
   color: #872828;
-
-  &:before {
-    content: "⚠︎ " attr(def);
-    background-color: rgba(198, 45, 45, .11);
-    font-weight: 800;
-    display: inline-block;
-    border-right-width: 2px;
-    border-right-style: solid;
-  }
-
-  li {
-    margin: 5px 0;
-  }
+}
+note[def=caution]:before {
+  content: "⚠︎ " attr(def);
+  background-color: rgba(198, 45, 45, 0.11);
+  font-weight: 800;
+  display: inline-block;
+  border-right-width: 2px;
+  border-right-style: solid;
+}
+note[def=caution] li {
+  margin: 5px 0;
 }
 
 note:before {
@@ -311,7 +370,7 @@ note:before {
   text-transform: uppercase;
   font-weight: 700;
   font-size: 12px;
-  background: rgba(#000, .014);
+  background: rgba(0, 0, 0, 0.014);
   display: block;
 }
 
@@ -339,6 +398,7 @@ note:before {
 demo {
   display: none;
 }
+
 demo.visible {
   display: block;
 }
@@ -346,3 +406,108 @@ demo.visible {
 #usage {
   grid-column: 2/span 1;
 }
+
+#betterdiv {
+  margin: -15px -15px 15px;
+  border-spacing: 0;
+}
+
+#betterdiv h1 {
+  margin: 0 -2px 0;
+  padding: 30px 20px;
+  box-sizing: border-box;
+  border: 2px solid #dedede;
+  border-top: 0;
+  background-color: #fcfcfc;
+  font-weight: 800;
+  align-items: center;
+  line-height: 1;
+}
+
+.required,
+.notrequired {
+  padding: 15px 15px 0;
+}
+
+.required {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 7px;
+}
+
+.notrequired {
+  display: grid;
+  grid-template: "h1 h1" "dob dob" "f1 f2"/1fr 1fr;
+}
+
+.notrequired .header {
+  grid-area: h1;
+  text-transform: uppercase;
+  font-weight: 800;
+  font-size: 13.5px;
+  display: block;
+  color: #5b5b5b;
+  background: linear-gradient(90deg, #fcfcfc, #fe9c67) 0%/2000% 100%;
+  margin: 0px -15px 15px;
+  padding: 15px;
+  border-bottom: 2px solid #dedede;
+  border-top: 2px solid #dedede;
+}
+
+.notrequired .dob {
+  grid-area: dob;
+  padding: 10px 15px;
+  background: #fcfcfc;
+  border: 2px solid #dedede;
+  border-radius: 3px;
+  margin: 0 0 15px;
+}
+
+.notrequired .default,
+.notrequired div[id^=field] {
+  margin: 0px -15px;
+  border-top: 2px solid #dedede;
+  padding: 20px 30px;
+  background-color: #f8f8f8;
+  transition: 0.25s ease;
+  grid-column: 1/span 2;
+}
+
+.notrequired .default:hover,
+.notrequired div[id^=field]:hover {
+  background-color: #fbfbfb;
+}
+
+#field_1 {
+  grid-area: f1;
+}
+
+#field_2 {
+  grid-area: f2;
+}
+
+.notrequired .label {
+  color: #fe9c67;
+  border: 2px solid #dedede;
+  background: linear-gradient(90deg, #fcfcfc, #fe9c67) 0%/1000% 100%;
+  padding: 5px 10px;
+  box-sizing: border-box;
+  transition: 0.45s ease;
+  font: 800 10px "Nunito Sans";
+  display: inline-block;
+  border-bottom: 0;
+}
+
+.notrequired .desc {
+  color: #4b4b4b;
+  border: 2px solid #dedede;
+  background: #fcfcfc;
+  padding: 5px 10px;
+  box-sizing: border-box;
+  transition: 0.45s ease;
+  font: 500 10px "Nunito Sans";
+  display: inline-block;
+  border-bottom: 0;
+}
+
+/*# sourceMappingURL=main.css.map */

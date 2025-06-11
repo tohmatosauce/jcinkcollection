@@ -1,1 +1,0 @@
-import { default as script } from '/scripts/pseudonym.js'

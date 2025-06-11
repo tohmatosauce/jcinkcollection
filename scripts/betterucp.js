@@ -1,4 +1,4 @@
-function better_ucp(args) {
+function bc_better_ucp(args) {
   if (!document.querySelector('input[name="CODE"][value="21"]')) return false;
 
   const validate_field_table = (table) => {
@@ -123,73 +123,71 @@ function better_ucp(args) {
     return map;
   }
 
-  const main = () => {
-    const ucpform = document.querySelector("#ucpcontent form"),
-      { field_list, required_fields, optional_fields } = get_field_list(),
-      wrapper_name = args.wrapper_name || "betterdiv",
-      template_class = args.template_class || "better_ucp_templates",
-      inner_structure = args.template_inner_structure || "#inner_structure",
-      default_field = args.template_default_field || "#default_field",
-      field_groups = new Map(Object.entries({ ...args.field_groups, required: required_fields, optional: optional_fields })) || new Map(Object.entries({ required: required_fields, optional: optional_fields })),
-      field_order = get_grouped_fields(args.field_order, field_groups) || [],
-      flattened_order = flatten_mixed_array(field_order),
-      field_templates_transposed = get_grouped_fields(args.field_templates, field_groups) || {},
-      field_templates = get_transposed_fields(field_templates_transposed, default_field, template_class);
+  const ucpform = document.querySelector("#ucpcontent form"),
+    { field_list, required_fields, optional_fields } = get_field_list(),
+    wrapper_name = args.wrapper_name || "betterdiv",
+    template_class = args.template_class || "better_ucp_templates",
+    inner_structure = args.template_inner_structure || "#inner_structure",
+    default_field = args.template_default_field || "#default_field",
+    field_groups = new Map(Object.entries({ ...args.field_groups, required: required_fields, optional: optional_fields })) || new Map(Object.entries({ required: required_fields, optional: optional_fields })),
+    field_order = get_grouped_fields(args.field_order, field_groups) || [],
+    flattened_order = flatten_mixed_array(field_order),
+    field_templates_transposed = get_grouped_fields(args.field_templates, field_groups) || {},
+    field_templates = get_transposed_fields(field_templates_transposed, default_field, template_class);
 
-    // Throw error if there are duplicate field IDs listed in field_order or field_templates
-    const validate = {
-      templates: validate_field_table(field_templates_transposed),
-      order: validate_field_table(field_order)
-    }
-    if (validate.templates || validate.order) {
-      throw new Error(`Duplicate field IDs listed in field_templates or field_order.`);
-    }
+  // Throw error if there are duplicate field IDs listed in field_order or field_templates
+  const validate = {
+    templates: validate_field_table(field_templates_transposed),
+    order: validate_field_table(field_order)
+  }
+  if (validate.templates || validate.order) {
+    throw new Error(`Duplicate field IDs listed in field_templates or field_order.`);
+  }
 
-    // Create wrapper
-    const doc = document.createElement('body');
-    const wrapper = document.createElement('div');
-    wrapper.id = wrapper_name;
-    wrapper.innerHTML += '<input type="hidden" name="act" value="UserCP"><input type="hidden" name="CODE" value="21">';
-    doc.append(wrapper);
+  // Create wrapper
+  const doc = document.createElement('body');
+  const wrapper = document.createElement('div');
+  wrapper.id = wrapper_name;
+  wrapper.innerHTML += '<input type="hidden" name="act" value="UserCP"><input type="hidden" name="CODE" value="21">';
+  doc.append(wrapper);
 
-    // Fill the inner structure
-    const inner_structure_translated = parse_template('', inner_structure + "." + template_class);
-    const inner_structure_parsed = new DOMParser().parseFromString(inner_structure_translated, "text/html")
-    const inner_structure_body = inner_structure_parsed.getRootNode().body;
-    wrapper.append(...inner_structure_body.childNodes);
-    const objected_order = new Object();
-    objected_order["#" + wrapper_name] = field_order;
-    const order = Object.entries(flatten_object(objected_order)).map(([k, v]) => [k.split(" ").filter((str,) => parseInt(str).toString().length !== str.length).join(" "), v]);
-    // Track nodes used
-    const visited_nodes = new Array();
-    for (const [selector, fields] of order) {
-      let parent = null;
-      for (const id of fields) {
-        const parent_possibilities = doc.querySelectorAll(selector);
-        for (const p of parent_possibilities)
-          if (visited_nodes.indexOf(p) === -1) parent = p;
-        if (!parent) throw new Error(`${selector} doesn't exist in your given inner structure. Accidental duplicate selectors listed in field_order is likely the culprit.`);
-        parent.appendChild(...get_field_templates(field_templates, id));
-      }
-      visited_nodes.push(parent)
+  // Fill the inner structure
+  const inner_structure_translated = parse_template('', inner_structure + "." + template_class);
+  const inner_structure_parsed = new DOMParser().parseFromString(inner_structure_translated, "text/html")
+  const inner_structure_body = inner_structure_parsed.getRootNode().body;
+  wrapper.append(...inner_structure_body.childNodes);
+  const objected_order = new Object();
+  objected_order["#" + wrapper_name] = field_order;
+  const order = Object.entries(flatten_object(objected_order)).map(([k, v]) => [k.split(" ").filter((str,) => parseInt(str).toString().length !== str.length).join(" "), v]);
+  // Track nodes used
+  const visited_nodes = new Array();
+  for (const [selector, fields] of order) {
+    let parent = null;
+    for (const id of fields) {
+      const parent_possibilities = doc.querySelectorAll(selector);
+      for (const p of parent_possibilities)
+        if (visited_nodes.indexOf(p) === -1) parent = p;
+      if (!parent) throw new Error(`${selector} doesn't exist in your given inner structure. Accidental duplicate selectors listed in field_order is likely the culprit.`);
+      parent.appendChild(...get_field_templates(field_templates, id));
     }
-    // Dump all default variables that aren't included in the field order, so we need a way to compare field order list versus field list.
-    const get_shallowest_node = (list) => {
-      const level_structure_map = get_level_map(wrapper).slice(1);
-      for (const floor of level_structure_map) {
-        const floor_census = floor.filter(door => list.indexOf(door) > -1);
-        if (floor_census.length > 0) return floor_census.pop()
-      }
-      return false;
+    visited_nodes.push(parent)
+  }
+  // Dump all default variables that aren't included in the field order, so we need a way to compare field order list versus field list.
+  const get_shallowest_node = (list) => {
+    const level_structure_map = get_level_map(wrapper).slice(1);
+    for (const floor of level_structure_map) {
+      const floor_census = floor.filter(door => list.indexOf(door) > -1);
+      if (floor_census.length > 0) return floor_census.pop()
     }
-    const shallowest_node = get_shallowest_node(visited_nodes);
-    const undeclared_fields = field_list.filter(f => flattened_order.indexOf(f) < 0);
-    const dump_remaining = shallowest_node || wrapper.lastChild;
-    for (const id of undeclared_fields) {
-      dump_remaining.after(...get_field_templates(field_templates, id));
-    }
-    // Add wrapper to document
-    while (ucpform.firstChild) ucpform.removeChild(ucpform.firstChild);
-    ucpform.appendChild(wrapper);
-  };
+    return false;
+  }
+  const shallowest_node = get_shallowest_node(visited_nodes);
+  const undeclared_fields = field_list.filter(f => flattened_order.indexOf(f) < 0);
+  const dump_remaining = shallowest_node || wrapper.lastChild;
+  for (const id of undeclared_fields) {
+    dump_remaining.after(...get_field_templates(field_templates, id));
+  }
+  // Add wrapper to document
+  while (ucpform.firstChild) ucpform.removeChild(ucpform.firstChild);
+  ucpform.appendChild(wrapper);
 };

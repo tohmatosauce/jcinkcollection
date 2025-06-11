@@ -1,6 +1,5 @@
-function tagSystem(args) {
+function bc_tag_system(...args) {
   const [options, forum_settings] = args;
-
   const _add_menu = (options) => {
     const post_opt = document.getElementById("post-options");
     const container = document.createElement("tr");
@@ -53,6 +52,8 @@ function tagSystem(args) {
         tag_container.append(input, label);
         input.addEventListener("click", function ($this) {
           const parent = $this.target.closest(".pformright");
+          if($this.target.getAttribute("type")==="radio" && $this.target.checked)
+            $this.checked = false
           const allChecked = parent.querySelectorAll("input:checked");
           tags_preview.innerHTML = Array.from(allChecked, e => {
             const id = e.id,
