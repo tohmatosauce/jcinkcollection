@@ -3,4 +3,6 @@ dist/
 npm-debug.log
 .vscode
 *.css.map
+style.css
 _css
+main.scss
