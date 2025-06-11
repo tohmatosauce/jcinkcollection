@@ -144,3 +144,5 @@ function tagSystem(args) {
   };
  }
 }
+
+export { tagSystem as default }

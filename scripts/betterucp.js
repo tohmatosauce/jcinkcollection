@@ -195,3 +195,5 @@ function better_ucp(args) {
  
 main();
 };
+
+export { better_ucp as default }

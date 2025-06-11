@@ -1,0 +1,1 @@
+import { default as script } from '/scripts/tagsystem.js'

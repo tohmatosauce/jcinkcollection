@@ -47,3 +47,5 @@ function jcinkPseudonym(args){
   console.error("[Pseudonym]: " + e.message)
  }
 }
+
+export { jcinkPseudonym as default }
