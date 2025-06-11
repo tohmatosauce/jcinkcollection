@@ -10,6 +10,9 @@ body {
 a {
   text-decoration: none;
   color: #fe9c67;
+}
+
+.usage a {
   display: inline-block;
   border: 2px solid #dedede;
   background: linear-gradient(90deg, #fcfcfc, #fe9c67) 0%/1000% 100%;
@@ -18,8 +21,7 @@ a {
   transition: .45s ease;
   font: 800 10px "Nunito Sans"
 }
-
-a:hover {
+.usage a:hover {
   background: linear-gradient(90deg, #fcfcfc, #fe9c67) 0%/500% 100%
 }
 
@@ -35,7 +37,7 @@ table {
   width: calc(100% - 5vw);
   border: 2px solid #dedede;
   background-color: #f0f0f0;
-  border-spacing: 0
+  border-spacing: 0;
 }
 
 tr {
@@ -45,7 +47,7 @@ tr {
 
 td {
   padding: 15px;
-  counter-reset: section
+  counter-reset: section;
 }
 
 td>p:nth-last-child(1) {
