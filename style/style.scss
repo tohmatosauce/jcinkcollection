@@ -22,15 +22,26 @@ code {
 }
 
 table {
-  border: 2px solid #dedede;
+  border-right: 2px solid #dedede;
+  border-top: 2px solid #dedede;
   background-color: #f0f0f0;
   border-spacing: 0;
   width: 100%;
+}
+table:nth-of-type(1) {
+  border-top: 0;
 }
 
 tr {
   display: grid;
   grid-template-columns: 30% 1fr;
+}
+
+table tr:first-child {
+  border-top: 0 !important;
+}
+table tr:last-child {
+  border-bottom: 0 !important;
 }
 
 td {
@@ -62,6 +73,9 @@ td:nth-of-type(1) {
   tr {
     grid-template-columns: auto;
   }
+  td:nth-of-type(1) {
+    border-right: 0;
+  }
 }
 
 input {
@@ -79,18 +93,14 @@ input:hover {
 }
 
 .h1 {
-  margin: 0 -2px 0;
   padding: 30px 20px;
   box-sizing: border-box;
-  border: 2px solid #dedede;
+  border-top: 2px solid #dedede;
+  border-bottom: 2px solid #dedede;
   background-color: #fcfcfc;
   font-weight: 800;
   align-items: center;
   line-height: 1
-}
-
-.h1:nth-of-type(1) {
-  margin-top: -2px;
 }
 
 .h1 td:nth-of-type(1) {
@@ -174,9 +184,9 @@ option::checkmark {
 }
 
 #submit {
-  margin: 0 -2px -2px;
   box-sizing: border-box;
-  border: 2px solid #dedede;
+  border-top: 2px solid #dedede;
+  border-bottom: 2px solid #dedede;
   background-color: #fcfcfc;
   cursor: pointer;
   transition: .35s ease;
@@ -317,23 +327,29 @@ note:before {
 
 #doc {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  grid-auto-flow: column;
+  grid-template: 
+    "switcher usage" min-content
+    "demo usage" 1fr
+    / 1fr 1fr;
   gap: 15px;
-  margin: 15px 15px 15px 0;
+  padding: 15px;
   box-sizing: border-box;
-  height: calc(100vh - 30px);
-  padding: 0 15px;
-  scrollbar-gutter: stable both-edges;
+  align-items: flex-start;
+  overflow: hidden;
+  height: 100dvh;
 }
 
 #demo {
-  grid-column: 1/span 1;
   display: grid;
+  grid-area: demo;
   gap: 15px;
-  align-self: flex-start;
   position: sticky;
   top: 0;
+  border: 2px solid #dedede;
+  max-height: 100%;
+  box-sizing: border-box;
+  overflow: auto;
+  scrollbar-gutter: stable;
 }
 
 demo {
@@ -343,6 +359,15 @@ demo.visible {
   display: block;
 }
 
+#demo-switcher {
+  grid-area: switcher;
+}
+
 #usage {
-  grid-column: 2/span 1;
+  grid-area: usage;
+  max-height: 100%;
+  scrollbar-gutter: stable;
+  overflow: auto;
+  border:2px solid #dedede;
+  box-sizing: border-box;
 }
