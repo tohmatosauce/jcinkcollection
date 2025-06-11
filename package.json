@@ -1,0 +1,11 @@
+{
+  "name": "jcinkcollection",
+  "version": "1.0.0",
+  "description": "Collection of scripts/plugins made for JCINK, a forum host service.",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "author": "tohmatosauce",
+  "license": "ISC"
+}
