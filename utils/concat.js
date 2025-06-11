@@ -11,5 +11,5 @@ if (fs.existsSync(args[1]))
 const files = globSync(args[0])
 files.forEach((file) => {
   fs.appendFileSync(args[1], fs.readFileSync(file, 'utf-8'));
-  fs.appendFileSync(args[1], '\n');
+  fs.appendFileSync(args[1], '\n\n');
 })
