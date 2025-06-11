@@ -6,6 +6,21 @@
   "directories": {
     "doc": "docs"
   },
+  "scripts": {
+    "compile:sass": "sass --no-source-map ./:./",
+    "concat:css": "node utils/concat *.css main.css",
+    "prefix:css": "postcss autoprefixer main.css -o main.css",
+    "compress:css": "sass main.css:main.css --style compressed",
+    "build": "npm run compile:sass && npm run concat:css && npm run prefix:css && npm run compress:css"
+  },
   "author": "tohmatosauce",
-  "license": "ISC"
+  "license": "ISC",
+  "devDependencies": {
+    "autoprefixer": "^10.4.21",
+    "glob": "^11.0.2",
+    "postcss": "^8.5.4",
+    "postcss-cli": "^11.0.1",
+    "postcss-preset-env": "^10.2.2"
+  },
+  "type": "module"
 }
