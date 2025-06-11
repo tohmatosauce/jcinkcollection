@@ -7,8 +7,8 @@
     "doc": "docs"
   },
   "scripts": {
-    "compile:sass": "sass --no-source-map ./:./",
-    "concat:css": "node utils/concat *.css main.css",
+    "compile:sass": "sass --no-source-map ./:_css",
+    "concat:css": "node utils/concat _css/**/*.css main.css",
     "prefix:css": "postcss autoprefixer main.css -o main.css",
     "compress:css": "sass main.css:main.css --style compressed",
     "build": "npm run compile:sass && npm run concat:css && npm run prefix:css && npm run compress:css"
