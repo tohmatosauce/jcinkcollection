@@ -1,0 +1,105 @@
+#betterdiv {
+  margin: -15px -15px 15px;
+  border-spacing: 0;
+}
+
+#betterdiv h1 {
+  margin: 0 -2px 0;
+  padding: 30px 20px;
+  box-sizing: border-box;
+  border: 2px solid #dedede;
+  border-top: 0;
+  background-color: #fcfcfc;
+  font-weight: 800;
+  align-items: center;
+  line-height: 1;
+}
+
+.required,
+.notrequired {
+  padding: 15px 15px 0;
+}
+
+.required {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 7px;
+}
+
+.notrequired {
+  display: grid;
+  grid-template:
+    "h1 h1"
+    "dob dob"
+    "f1 f2" / 1fr 1fr;
+}
+
+.notrequired .header {
+  grid-area: h1;
+  text-transform: uppercase;
+  font-weight: 800;
+  font-size: 13.5px;
+  display: block;
+  color: #5b5b5b;
+  background: linear-gradient(90deg, #fcfcfc, #fe9c67) 0% / 2000% 100%;
+  margin: 0px -15px 15px;
+  padding: 15px;
+  border-bottom: 2px solid #dedede;
+  border-top: 2px solid #dedede;
+}
+
+.notrequired .dob {
+  grid-area: dob;
+  padding: 10px 15px;
+  background: #fcfcfc;
+  border: 2px solid #dedede;
+  border-radius: 3px;
+  margin: 0 0 15px;
+}
+
+.notrequired .default,
+.notrequired div[id^="field"] {
+  margin: 0px -15px;
+  border-top: 2px solid #dedede;
+  padding: 20px 30px;
+  background-color: #f8f8f8;
+  transition: .25s ease;
+  grid-column: 1/span 2;
+}
+
+.notrequired .default:hover,
+.notrequired div[id^="field"]:hover {
+  background-color: #fbfbfb;
+}
+
+#field_1 {
+  grid-area: f1
+}
+
+#field_2 {
+  grid-area: f2
+}
+
+.notrequired .label {
+  color: #fe9c67;
+  border: 2px solid #dedede;
+  background: linear-gradient(90deg, #fcfcfc, #fe9c67) 0%/1000% 100%;
+  padding: 5px 10px;
+  box-sizing: border-box;
+  transition: .45s ease;
+  font: 800 10px "Nunito Sans";
+  display: inline-block;
+  border-bottom: 0;
+}
+
+.notrequired .desc {
+  color: #4b4b4b;
+  border: 2px solid #dedede;
+  background: #fcfcfc;
+  padding: 5px 10px;
+  box-sizing: border-box;
+  transition: .45s ease;
+  font: 500 10px "Nunito Sans";
+  display: inline-block;
+  border-bottom: 0;
+}

@@ -1,0 +1,67 @@
+<table>
+ <tr class="h1" id="maintitle">
+  <td>INSTRUCTIONS</td>
+  <td><a target="_blank" href="https://pastebin.com/raw/Zt4RtVfd">PASTEBIN LINK TO BAREBONES EXAMPLE SCRIPT USAGE</a></td>
+ </tr>
+ <tr class="col1">
+  <td>
+   <div class="para-start">Requirements</div>
+   <p>Knowledge and ability to write basic JS scripts that manipulate the DOM.</p>
+
+   <div class="para-start">Compatibility</div>
+   <p>This script can be used in conjunction with Fizzyelf’s <em>styled content warnings tag</em> script, or any other similar script that targets the topic title. Scripts that target the description may or may not work with JCINK Topic Tag Framework.</p>
+   
+   <div class="para-start">Installation</div>
+   <p>Insert at the top of wrapper: 
+    <note def="code">&lt;script src="https://codepen.io/breezescodes/pen/MYYzEXQ.js">&lt;/script></note></p>
+   
+   <div class="para-start">Usage</div>
+   <p class="para-sub1">Preface</p>
+   <p>This script is not out-of-the-box functional. What it adds: <em>A topic tag menu interface to the posting view, function callbacks for scripters to be able to read the tags of a topic in both the topic and forum row view.</em> What it does not add: <em>ready to use visible tags similar to Fizzyelf’s styled content warnings tags script.</em> This is done to allow a greater degree of control and customisation that would be otherwise difficult to implement, given the variety of HTML structures that JCINK forums can be configured with.</p>
+   <p class="para-sub1">Basic function call:</p>
+   <p class="para-important">tagSystem(<code>options</code>, <code>forum_settings</code>)</p>
+<note def="options[] schema">{
+     menu: "name of menu",
+     forum: [id],
+     tags: {
+      "tag id": "tag label"
+    },
+     type: "checkbox or radio"
+}</note>
+<note def="forum_settings schema">{
+     description: [
+      {
+       selector: "css selector", 
+       callback: function name(param1, param2)
+      }
+     ]
+}</note>
+   <p class="para-sub1">options (<code>array of objects</code>)</p>
+   <p>Defines the topic tags. Topic tags are sorted into menus. This allows you to make different tagging options available depending on the forum, or organize types of tags into visual menus (e.g., tags for locations, factions, etc). Each entry is a JS object containing menu information:</p>
+   <p><span class="para-important">options[].menu (<code>string</code>)</span> Name of menu; shown in the posting view. The menu name (spaces replaced with underscores) is often added to related elements’ classes or ids for styling or targeting purposes.</p>
+   <p><span class="para-important">options[].forum (<code>array of integers</code>)</span> List of forum ids which use this menu. Multiple forums can use the same menu.</p>
+   <p><span class="para-important">options[].tags (<code>object</code>)</span> Defines the menu’s tags. Because JCINK topic descriptions are limited to 40 characters, the script uses the parameters of the <code>tags</code> object as abbreviated ids. It then maps the id parameter to a label value, which is what the end user sees and interacts with. Thus, the labels can be as long as desired without exceeding the description’s character limit.</p>
+   <note def="caution"><ol>
+    <li>As a rule of thumb, keep tag ids under three characters so as not to exceed the 40 character limit when applying multiple tags.</li>
+    <li>Tag ids must be unique across <em>all</em> menus.</li>
+    <li><strong>Do not change an existing tag id after installation.</strong> Unless you know what you’re doing, this can lead to significant issues that will require manually fixing every topic that applied that tag with this script.</li>
+   </ol></note>
+   <p><span class="para-important">options[].type (<code>string</code>)</span> Takes either <code>checkbox</code> or <code>radio</code>. This is the same as HTML input type. Checkboxes allows for multiple tags to be selected, while radios only allow for a single tag to be selected.</p>
+   <p class="para-sub1">forum_settings (<code>object</code>)</p>
+   <p><span class="para-important">forum_settings.description (<code>array of objects</code>)</span> Adds initialisers to (1) clean up the tag id references so that the description isn’t preappended with $id1$id2$ type nonsense, (2) use custom scripting that can be executed for each element, similar to JS’s <code>forEach()</code>.</p>
+   <p><span class="para-important">forum_settings.description[].selector (<code>string</code>)</span> CSS Selector to an element with topic description text.</p>
+   <p><span class="para-important">forum_settings.description[].callback (<code>function</code>)</span> Optional. Function callback that is executed when the script goes to clean up any tag ids from the topic description. Two parameters are passed to the function callback. <code>param1</code> is the target element—again, similar to <code>forEach()</code>—and <code>param2</code> is an array of tags. Each entry has parameters for the tag’s <code>id</code>, <code>label</code>, and <code>menu</code>. For example, a basic callback function that prints the element node and its tags’ properties:</p>
+<note def="code">function callback(element, tags){
+     console.log(element);
+     for (const tag of tags) {
+      console.log(
+       tag.id, 
+       tag.label, 
+       tag.menu
+      )
+     }
+}</note>
+
+  </td>
+ </tr>
+</table>
