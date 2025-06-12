@@ -47,7 +47,7 @@ const build_page = async () => {
     })
   })
   await load_html("usage")
-  load_scripts("/scripts/" + dir.split("/").slice(-2,-1) + ".js", "demo.js")
+  load_scripts("/jcinkcollection/scripts/" + dir.split("/").slice(-2,-1) + ".js", "demo.js")
 }
 
 window.addEventListener("load", build_page)
