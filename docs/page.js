@@ -39,7 +39,7 @@ const build_page = async () => {
   await load_html("demo", (section) => {
     const demos = section.querySelectorAll("demo")
     const options = Array.from(demos, demo => "<option value='" + demo.getAttribute("name") +"'>" + demo.getAttribute("name") + "</option>")
-    section.insertAdjacentHTML("beforebegin", "<select value='" + demos[0].getAttribute("name") + "' id='demo-switcher'>" + options.join("") + "</select>")
+    section.insertAdjacentHTML("beforebegin", "<select value='" + demos[0]?.getAttribute("name") + "' id='demo-switcher'>" + options.join("") + "</select>")
     document.getElementById("demo-switcher").addEventListener("change",(evt) => {
       const name = evt.target.value
       demos.forEach(demo => demo.classList.remove("visible"))
@@ -47,6 +47,10 @@ const build_page = async () => {
     })
   })
   await load_html("usage")
+  const stylesheet = document.createElement("link")
+  stylesheet.href = "/jcinkcollection/style/css/" + dir.split("/").slice(-2,-1) + ".css"
+  stylesheet.rel = "stylesheet"
+  document.head.appendChild(stylesheet)
   load_scripts("/jcinkcollection/scripts/" + dir.split("/").slice(-2,-1) + ".js", "demo.js")
 }
 

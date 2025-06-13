@@ -7,26 +7,20 @@
     "doc": "docs"
   },
   "scripts": {
-    "concat:sass": "node utils/concat style/*.scss main.scss",
-    "compile:sass": "sass --no-source-map main.scss main.css",
-    "prefix:css": "postcss autoprefixer main.css -o main.css",
-    "compress:css": "sass main.css:main.css --style compressed",
-    "build": "npm run concat:sass && npm run compile:sass && npm run prefix:css && npm run compress:css",
-    "dev:concat": "node utils/concat style/*.scss main.scss",
-    "dev:compile": "sass --watch main.scss main.css",
-    "watch:style": "watch \"npm run dev:concat\" style",
-    "dev": "conc \"npm run dev:concat\" \"npm run watch:style\" \"npm run dev:compile\""
+    "compile:sass": "sass --no-source-map style/src:style/css --style compressed",
+    "concat:sass": "node utils/concat style/css/*.css style/css/index.css",
+    "prefix:css": "postcss --no-map autoprefixer style/css/index.css -o style/css/index.css",
+    "build": "npm run compile:sass && npm run concat:sass && npm run prefix:css",
+    "dev": "sass --watch style/src:style/css"
   },
   "author": "tohmatosauce",
   "license": "ISC",
   "devDependencies": {
     "autoprefixer": "^10.4.21",
-    "concurrently": "^9.1.2",
     "glob": "^11.0.2",
     "postcss": "^8.5.4",
     "postcss-cli": "^11.0.1",
-    "postcss-preset-env": "^10.2.2",
-    "watch": "^1.0.2"
+    "postcss-preset-env": "^10.2.2"
   },
   "type": "module"
 }
