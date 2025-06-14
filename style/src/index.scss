@@ -459,15 +459,6 @@ tag {
     border-right: 0;
   }
 
-  #doc {
-    grid-template:
-      "switcher" min-content
-      "demo" auto
-      "usage" auto / 100%;
-    overflow: auto;
-    height: 100dvh;
-  }
-
   #demo {
     scrollbar-gutter: auto;
     overflow: unset;
@@ -478,5 +469,19 @@ tag {
     max-height: unset;
     scrollbar-gutter: unset;
     overflow: unset;
+  }
+
+  #doc {
+    grid-template:
+      "switcher" min-content
+      "demo" auto
+      "usage" auto / 100%;
+    overflow: auto;
+    height: 100dvh;
+  }
+
+  tag {
+    background: linear-gradient(90deg, #fcfcfc 50%, #fe9c67) 0% / 100% 100%;
+    background-attachment: fixed;
   }
 }
