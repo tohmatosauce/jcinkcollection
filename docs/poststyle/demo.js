@@ -53,11 +53,13 @@ document.REPLIER.addEventListener("submit", () => {
     const template_content_replaced = template_content.replaceAll(/\$\{([^\.]*?)\}/g, (_,p1) => key_val[p1]).replaceAll(/\$\{(.*?)\.(.*?)\}/g, (_,p1,p2) => key_val[p1][p2])
     return template_content_replaced
   }
+  switch_demo("?showtopic")
   const metadata = _parse_post(document.querySelector('.postcolor'))
+  if(metadata.post_style === "---") return false;
+    console.log(metadata.post_style)
   const style = styles[metadata.post_style]
   const [selector, _, callback] = style
   const template = _parse_template(selector, { post: document.querySelector('.postcolor').innerHTML.trim(), ...metadata })
   document.querySelector('.postcolor').innerHTML = template
   callback(document.querySelector('.postcolor'), metadata)
-  switch_demo("?showtopic")
 })

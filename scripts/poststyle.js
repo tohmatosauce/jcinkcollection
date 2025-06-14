@@ -21,22 +21,26 @@ function bc_post_style(...args) {
           document.REPLIER.tag_user_view.innerHTML = ''
           document.REPLIER.tag_user_view.size = matched.length < 4 ? matched.length : 4
           document.REPLIER.tag_user_view.insertAdjacentHTML('beforeend', matched.map(([i, user]) => "<option value='" + i + "'>" + user + "</option>").join(""))
-          Array.from(document.REPLIER.tag_user_view.options).forEach(x => x.addEventListener("click", () => {
-            const id = x.value
-            document.REPLIER.tag_user.options[id].selected = true
-            const tag = document.createElement("tag")
-            tagmenu.querySelector(".tags_preview").append(tag)
-            tag.innerText = x.innerText
-            tag.addEventListener("click", () => {
-              document.REPLIER.tag_user.options[id].selected = false
-              tag.remove()
-            })
-            x.remove()
-            document.REPLIER.tag_user_search.value = ""
-            document.REPLIER.tag_user_search.focus();
-            document.REPLIER.tag_user_view.size = (matched.length - 1) < 4 ? matched.length - 1 : 4
-            if (document.REPLIER.tag_user_view.size < 1) document.REPLIER.tag_user_view.style.display = 'none'
-          }))
+          document.REPLIER.tag_user_view.addEventListener("change", ()=>{
+            Array.from(document.REPLIER.tag_user_view.selectedOptions).forEach(x => x.addEventListener("click", () => {
+              if (x.getAttribute("has-event") === "true") return false
+              x.setAttribute("has-event", "true")
+              const id = x.value
+              document.REPLIER.tag_user.options[id].selected = true
+              const tag = document.createElement("tag")
+              tagmenu.querySelector(".tags_preview").append(tag)
+              tag.innerText = x.innerText
+              tag.addEventListener("click", () => {
+                document.REPLIER.tag_user.options[id].selected = false
+                tag.remove()
+              })
+              x.remove()
+              document.REPLIER.tag_user_search.value = ""
+              document.REPLIER.tag_user_search.focus();
+              document.REPLIER.tag_user_view.size = (matched.length - 1) < 4 ? matched.length - 1 : 4
+              if (document.REPLIER.tag_user_view.size < 1) document.REPLIER.tag_user_view.style.display = 'none'
+            }))
+          })
         } else {
           document.REPLIER.tag_user_view.style.display = 'none'
         }
@@ -52,11 +56,11 @@ function bc_post_style(...args) {
     stylemap.forEach((v, i) => menu.querySelector(".pformright select").insertAdjacentHTML("beforeend", "<option value='" + i + "'>" + v.name + "</option>"))
     menu.addEventListener("change", (evt) => {
       const $this = evt.target
-      if(parseInt($this.value)===0) return false;
       document.querySelectorAll(".post-style-options").forEach(option => {
         option.setAttribute("data-visible", "false")
         option.querySelector(".pformright").children[0].required = false;
       })
+      if(parseInt($this.value)===0) return false;
       const _selected = stylemap.get(parseInt($this.value))
       const _fields = _selected.fields.map(field => fieldmap.get(field))
       _fields.forEach(_f => {
@@ -87,6 +91,7 @@ function bc_post_style(...args) {
     "post_style_options": () => Object.fromEntries(Array.from(document.querySelectorAll(".post-style-options"), x => [ x.dataset.id, x.querySelector(".pformright").children[0].value ])),
     "tag_user": () => Array.from(document.REPLIER.tag_user.selectedOptions, x => "@[" + x.innerHTML.trim() + "]"),
   }, function (e, metadata) {
+    if(metadata.post_style === "---") return false
     const style = styles[metadata.post_style]
     const [selector, _, callback=()=>{}] = style
     const template = _parse_template(selector, { post: e.innerHTML.trim(), ...metadata })
