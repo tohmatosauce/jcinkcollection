@@ -22,7 +22,7 @@ function bc_post_style(...args) {
           document.REPLIER.tag_user_view.size = matched.length < 4 ? matched.length : 4
           document.REPLIER.tag_user_view.insertAdjacentHTML('beforeend', matched.map(([i, user]) => "<option value='" + i + "'>" + user + "</option>").join(""))
           document.REPLIER.tag_user_view.addEventListener("change", ()=>{
-            Array.from(document.REPLIER.tag_user_view.selectedOptions).forEach(x => x.addEventListener("click", () => {
+            Array.from(document.REPLIER.tag_user_view.selectedOptions).forEach(x => {
               if (x.getAttribute("has-event") === "true") return false
               x.setAttribute("has-event", "true")
               const id = x.value
@@ -39,7 +39,7 @@ function bc_post_style(...args) {
               document.REPLIER.tag_user_search.focus();
               document.REPLIER.tag_user_view.size = (matched.length - 1) < 4 ? matched.length - 1 : 4
               if (document.REPLIER.tag_user_view.size < 1) document.REPLIER.tag_user_view.style.display = 'none'
-            }))
+            })
           })
         } else {
           document.REPLIER.tag_user_view.style.display = 'none'
