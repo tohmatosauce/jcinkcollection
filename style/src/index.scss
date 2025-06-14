@@ -32,6 +32,7 @@ table {
   border-spacing: 0;
   width: 100%;
 }
+
 table:nth-of-type(1) {
   border-top: 0;
 }
@@ -44,6 +45,7 @@ tr {
 table tr:first-child {
   border-top: 0 !important;
 }
+
 table tr:last-child {
   border-bottom: 0 !important;
 }
@@ -73,16 +75,8 @@ td:nth-of-type(1) {
   border-right: 0
 }
 
-@media only screen and (max-width: 600px) {
-  tr {
-    grid-template-columns: auto;
-  }
-  td:nth-of-type(1) {
-    border-right: 0;
-  }
-}
-
-input, textarea {
+input,
+textarea {
   border: 2px solid #dedede;
   background: linear-gradient(90deg, #fcfcfc, #fe9c67) 0%/1000% 100%;
   padding: 5px 10px;
@@ -92,7 +86,8 @@ input, textarea {
   color: inherit;
 }
 
-input:hover, textarea:hover {
+input:hover,
+textarea:hover {
   background: linear-gradient(90deg, #fcfcfc, #fe9c67) 0%/500% 100%
 }
 
@@ -145,6 +140,7 @@ select {
   width: -webkit-fill-available;
   width: -moz-available;
 }
+
 select[multiple] {
   padding: 0
 }
@@ -177,12 +173,15 @@ option {
   transition: .4s;
   font-family: "Nunito Sans"
 }
+
 option:hover {
   background: #f4f4f4;
 }
+
 option:checked {
   background: #ebebeb;
 }
+
 option:nth-of-type(1) {
   border-top: 0;
 }
@@ -335,7 +334,7 @@ note:before {
 
 #doc {
   display: grid;
-  grid-template: 
+  grid-template:
     "switcher usage" min-content
     "demo usage" 1fr
     / 1fr 1fr;
@@ -352,7 +351,7 @@ note:before {
   max-height: 100%;
   scrollbar-gutter: stable;
   overflow: auto;
-  border:2px solid #dedede;
+  border: 2px solid #dedede;
   box-sizing: border-box;
 }
 
@@ -360,8 +359,6 @@ note:before {
   display: grid;
   grid-area: demo;
   gap: 15px;
-  position: sticky;
-  top: 0;
   border: 2px solid #dedede;
   max-height: 100%;
   box-sizing: border-box;
@@ -372,6 +369,7 @@ note:before {
 demo {
   display: none;
 }
+
 demo.visible {
   display: block;
 }
@@ -443,5 +441,42 @@ tag {
 
   input:checked+label {
     background: linear-gradient(90deg, #fcfcfc, #fe9c67) 0%/200% 100%
+  }
+}
+
+
+
+@media only screen and (max-width: 600px) {
+  table {
+    border-right: 0;
+  }
+  
+  tr {
+    grid-template-columns: auto;
+  }
+
+  td:nth-of-type(1) {
+    border-right: 0;
+  }
+
+  #doc {
+    grid-template:
+      "switcher" min-content
+      "demo" auto
+      "usage" auto / 100%;
+    overflow: auto;
+    height: 100dvh;
+  }
+
+  #demo {
+    scrollbar-gutter: auto;
+    overflow: unset;
+    max-height: unset;
+  }
+
+  #usage {
+    max-height: unset;
+    scrollbar-gutter: unset;
+    overflow: unset;
   }
 }
