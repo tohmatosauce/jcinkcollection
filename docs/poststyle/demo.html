@@ -1,0 +1,61 @@
+<a id='logged-in-as' style='display:none'>Ascalon</a>
+
+<demo class="visible" name="?act=POST">
+  <form action="" method="post" name="REPLIER" onsubmit="return false">
+    <input type="hidden" name="st" value="0">
+    <input type="hidden" name="act" value="Post">
+    <input type="hidden" name="s" value="">
+    <input type="hidden" name="f" value="1">
+
+    <input type="hidden" name="CODE" value="09">
+    <input type="hidden" name="t" value="25">
+    <input type="hidden" name="p" value="60">
+    <input type="hidden" name="st" value="0">
+    <table>
+      <tr class="h1" id="maintitle">
+        <td>JCINK MODULAR POST SYSTEM</td>
+        <td>[menu demo]</td>
+      </tr>
+      <tr class="col1" id="enter-your-post">
+        <td><textarea rows="5" name="Post">modular post system demo</textarea></td>
+      </tr>
+      <tr class="h1 col1" id="maintitle">
+        <td>Post Options</td>
+      </tr>
+      <tr id="post-options" class="col1"></tr>
+      <tr class="h1 col1" id="maintitle">
+        <td>Post as user</td>
+      </tr>
+      <tr id="post-as">
+        <td>Select sub-account author...</td>
+        <td><select id="post_as_menu" name="post_as">
+          <option value="0">-- Current account --</option>
+          <option value="1">&nbsp;&nbsp;» Manfred </option>
+        </select></td>
+      </tr>
+      <tr id="submit"><td><button>Submit</button></td></tr>
+    </table>
+  </form>
+</demo>
+
+<demo name="?showtopic">
+  <div class="postcolor">{"meta_data":{"forum_id":"1","author_id":"Ascalon","post_style":"BMW","post_style_options":{"square img":"","horizontal img":"https://placehold.co/500x250.png","lyrics #1":"A short lyric #1","lyrics #2":"A short lyric #2"},"tag_user":["@[AMa-10]"]},"post":"modular post system demo"}</div>
+</demo>
+
+<template id="_audi">
+  <div class="audi poststyle">
+    <img src="${square img}"/>
+    <div class="post">${post}</div>
+    <div class="lyric1">${lyrics #1}</div>
+    <div class="tags">${tags}</div>
+  </div>
+</template>
+<template id="_bmw">
+<div class="bmw poststyle">
+  <img src="${horizontal img}"/>
+  <div class="post">${post}</div>
+  <div class="lyric1">${lyrics #1}</div>
+  <div class="lyric2">${lyrics #2}</div>
+  <div class="tags">${tags}</div>
+</div>
+</template>

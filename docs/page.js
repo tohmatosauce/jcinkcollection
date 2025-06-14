@@ -35,14 +35,20 @@ const load_html = async (name, callback = ()=>{}) => {
   callback(el);
 }
 
+const switch_demo = (name) => {
+  document.getElementById("demo-switcher").value = name
+  document.querySelector("demo.visible").classList.remove("visible")
+  document.querySelector("demo[name='"+name+"']").classList.add("visible")
+}
+
 const build_page = async () => {
   await load_html("demo", (section) => {
     const demos = section.querySelectorAll("demo")
     const options = Array.from(demos, demo => "<option value='" + demo.getAttribute("name") +"'>" + demo.getAttribute("name") + "</option>")
-    section.insertAdjacentHTML("beforebegin", "<select value='" + demos[0]?.getAttribute("name") + "' id='demo-switcher'>" + options.join("") + "</select>")
+    section.insertAdjacentHTML("beforebegin", "<select value='" + section.querySelector("demo.visible")?.getAttribute("name") + "' id='demo-switcher'>" + options.join("") + "</select>")
     document.getElementById("demo-switcher").addEventListener("change",(evt) => {
       const name = evt.target.value
-      demos.forEach(demo => demo.classList.remove("visible"))
+      document.querySelector("demo.visible").classList.remove("visible")
       document.querySelector("demo[name='"+name+"']").classList.add("visible")
     })
   })

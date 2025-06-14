@@ -1,0 +1,29 @@
+<script src="//cdn.jsdelivr.net/gh/tohmatosauce/jcinkcollection@master/scripts/postframework.js"></script>
+<script src="//cdn.jsdelivr.net/gh/tohmatosauce/jcinkcollection@master/scripts/poststyle.js"></script>
+
+<template id="_audi">
+  <div class="audi poststyle">
+    <img src="${square}"/>
+    <div class="post">${post}</div>
+    <div class="lyric1">${lyrics #1}</div>
+  </div>
+</template>
+
+<script>
+bc_post_style(".postcolor", {
+  "Audi": ["#_audi", { fields: ["square", "lyrics #1"] }],
+}, {
+  "square": {
+    label: `Square image: `,
+    required: true,
+    html: `<input type="url" placeholder="https://placehold.co/100x100.png"/>`
+  },
+  "lyrics #1": {
+    label: `Lyrics #1: `,
+    required: true,
+    html: `<input type="text" placeholder="a short lyric #1"/>`
+  },
+}, {
+  "usertag": [false]
+})
+</script>

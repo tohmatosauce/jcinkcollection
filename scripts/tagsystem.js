@@ -7,7 +7,7 @@ function bc_tag_system(...args) {
     container.id = "post-tag-options";
     container.innerHTML = "<td class='pformleft'>Post Tags</td><td class='pformright'></td>";
     const tags_preview = document.createElement("div");
-    tags_preview.id = "tags_preview";
+    tags_preview.classList.add("tags_preview");
     const tags_container = new DocumentFragment();
     const tag_inputs = new DocumentFragment();
     const menu_inputs = document.createElement("select");

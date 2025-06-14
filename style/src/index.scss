@@ -82,7 +82,7 @@ td:nth-of-type(1) {
   }
 }
 
-input {
+input, textarea {
   border: 2px solid #dedede;
   background: linear-gradient(90deg, #fcfcfc, #fe9c67) 0%/1000% 100%;
   padding: 5px 10px;
@@ -92,7 +92,7 @@ input {
   color: inherit;
 }
 
-input:hover {
+input:hover, textarea:hover {
   background: linear-gradient(90deg, #fcfcfc, #fe9c67) 0%/500% 100%
 }
 
@@ -145,6 +145,9 @@ select {
   width: -webkit-fill-available;
   width: -moz-available;
 }
+select[multiple] {
+  padding: 0
+}
 
 select,
 ::picker(select) {
@@ -177,9 +180,9 @@ option {
 option:hover {
   background: #f4f4f4;
 }
-// option:focus {
-//   background: #ebebeb;
-// }
+option:checked {
+  background: #ebebeb;
+}
 option:nth-of-type(1) {
   border-top: 0;
 }
@@ -344,6 +347,15 @@ note:before {
   height: 100dvh;
 }
 
+#usage {
+  grid-area: usage;
+  max-height: 100%;
+  scrollbar-gutter: stable;
+  overflow: auto;
+  border:2px solid #dedede;
+  box-sizing: border-box;
+}
+
 #demo {
   display: grid;
   grid-area: demo;
@@ -368,11 +380,68 @@ demo.visible {
   grid-area: switcher;
 }
 
-#usage {
-  grid-area: usage;
-  max-height: 100%;
-  scrollbar-gutter: stable;
-  overflow: auto;
-  border:2px solid #dedede;
-  box-sizing: border-box;
+/* ?act=Post styling */
+
+.tag_container {
+  display: none;
+}
+
+.tag_container[data-visible="true"] {
+  display: block;
+}
+
+tag {
+  cursor: pointer;
+}
+
+tag:before {
+  content: 'x';
+  margin-right: 5px;
+  font-weight: 600;
+  font-size: .85em;
+  vertical-align: text-top;
+}
+
+.tags_preview {
+  margin-bottom: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+tag {
+  padding: 5px 11px;
+  background: #fcfcfc;
+  border: 2px solid #dedede;
+  border-radius: 3px;
+  transition: 1s ease;
+  display: inline-block;
+  background: linear-gradient(90deg, #fcfcfc 50%, #fe9c67) 0%/50% 100%;
+  background-attachment: fixed
+}
+
+.tag_container {
+  margin: 7px 0;
+
+  input {
+    display: none
+  }
+
+  label {
+    margin: 2.5px 0px;
+    border: 2px solid #dedede;
+    background: linear-gradient(90deg, #fcfcfc, #fe9c67) 0%/1000% 100%;
+    padding: 5px 10px;
+    display: block;
+    cursor: pointer;
+    transition: .35s ease;
+  }
+
+  label:hover {
+    background: linear-gradient(90deg, #fcfcfc, #fe9c67) 0%/500% 100%
+  }
+
+  input:checked+label {
+    background: linear-gradient(90deg, #fcfcfc, #fe9c67) 0%/200% 100%
+  }
 }

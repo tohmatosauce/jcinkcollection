@@ -1,7 +1,7 @@
 function bc_post_framework(...args){
  const _parse_post = (e, repl=e) => {
   try {
-   const str = e.innerHTML.trim();
+   const str = e.innerHTML.trim().replaceAll("\n", "\\n");
    const json = JSON.parse(str);
    repl.innerHTML = json["post"].replaceAll("&amp;quot;",'"');
    return json["meta_data"]
@@ -9,7 +9,7 @@ function bc_post_framework(...args){
    return false;
   }
  }
- const _load_post = (e) => {
+ const _load_post = (e, callback) => {
   if(!e) return false;
   const metadata = _parse_post(e);
   callback(e, metadata);
@@ -29,7 +29,7 @@ function bc_post_framework(...args){
    }).filter(arr => arr.length > 0);
    const post = document.REPLIER.post_area.value.replaceAll('"', "&quot;");
    const json = {"meta_data": Object.fromEntries(data), "post": post};
-   document.REPLIER.Post.value = JSON.stringify(json);
+   document.REPLIER.Post.value = JSON.stringify(json).replaceAll("\\n", "\n");
   }
  }
  const _clone_area = (e) => {
@@ -46,7 +46,7 @@ function bc_post_framework(...args){
  const posts = document.querySelectorAll(post);
  const observe = new MutationObserver(function(evt, obs){
   const qe = evt[0].target.querySelector(".editor textarea");
-  if(!qe) return _load_post(evt[0].target.querySelector(post));
+  if(!qe) return _load_post(evt[0].target.querySelector(post), callback);
   if(qe.disabled) return false;
   obs.disconnect();
   const post_area = _clone_area(qe);
@@ -59,7 +59,7 @@ function bc_post_framework(...args){
   obs.observe(evt[0].target.closest("[id*='pid_']"), {childList: true, subtree: true});
  });
  posts.forEach(e => {
-  _load_post(e);
+  _load_post(e, callback);
   // quick edit
   const pid = e.closest("[id*='pid_']");
   if(!pid) return false;
@@ -84,10 +84,3 @@ function bc_post_framework(...args){
  _parse_post(document.REPLIER.Post, post_area);
  document.REPLIER.addEventListener("submit", (e) => _submit_post(e, schema));
 }
-
-bc_post_framework(".postcolor", {
- "post_style_options": ()=> Object.fromEntries(Array.from(document.REPLIER.post_style_options, x => [x.id, x.value])),
- "tag_user": ()=> Array.from(document.REPLIER.tag_user.selectedOptions, x => "@["+x.innerHTML.trim()+"]"),
-}, function(e, metadata){
- console.log(e, metadata)
-});
