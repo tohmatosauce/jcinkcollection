@@ -53,10 +53,10 @@ const build_page = async () => {
     })
   })
   await load_html("usage")
-  const stylesheet = document.createElement("link")
-  stylesheet.href = "/jcinkcollection/style/css/" + dir.split("/").slice(-2,-1) + ".css"
-  stylesheet.rel = "stylesheet"
-  document.head.appendChild(stylesheet)
+  // const stylesheet = document.createElement("link")
+  // stylesheet.href = "/jcinkcollection/style/css/" + dir.split("/").slice(-2,-1) + ".css"
+  // stylesheet.rel = "stylesheet"
+  // document.head.appendChild(stylesheet)
   load_scripts("/jcinkcollection/scripts/" + dir.split("/").slice(-2,-1) + ".js", "demo.js")
 }
 
