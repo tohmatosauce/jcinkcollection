@@ -35,38 +35,48 @@ document.REPLIER.addEventListener("submit", () => {
   document.querySelector('.postcolor').innerHTML = document.REPLIER.Post.value
   // console.log(document.REPLIER.Post.value)
  const _parse_post = (e, repl=e) => {
-  try {
-   const mhtml = e.querySelector("POSTMETADATA")
-   const mdata = mhtml ? e.querySelector("POSTMETADATA").innerHTML : e.innerHTML.slice(e.innerHTML.match(/\[\[metadata\]\]/im).index + 12, e.innerHTML.match(/\[\[\/metadata\]\]/im).index)
-   mhtml?.remove()
-   const post = mhtml ? e.innerHTML : e.innerHTML.slice(e.innerHTML.match(/\[\[\/metadata\]\]/im).index + 13)
+    const m = {
+      "meta_begin": e.innerHTML.match(/\[\[metadata\]\]/im),
+      "meta_end": e.innerHTML.match(/\[\[\/metadata\]\]/im),
+      "post_begin": e.innerHTML.match(/\[\[post\]\]/im),
+      "post_end": e.innerHTML.match(/\[\[\/post\]\]/im),
+      "html_begin": e.innerHTML.match(/\[\[html\]\]/im),
+      "html_end": e.innerHTML.match(/\[\[\/html\]\]/im)
+    }
+   const mdata = e.innerHTML.slice(m.meta_begin.index + m.meta_begin[0].length, m.meta_end.index)
+  //  const tag = e.querySelector("hiddentag") ? e.querySelector("hiddentag").innerHTML : e.innerHTML.slice(m.tag_begin.index + m.tag_begin[0].length, m.tag_end.index)
+   const post = e.innerHTML.slice(m.post_begin.index + m.post_begin[0].length, m.post_end.index)
+   const html = e.innerHTML.slice(m.html_begin.index + m.html_begin[0].length, m.html_end.index)
+   const html_finder = [...html.matchAll(/\[\[(.*?)]](.*?)\[\[\/.*?]]/gim)]
+
    const json = {
     post: post,
+    html: Object.fromEntries(html_finder.map(f => [f[1], f[2]])),
     meta_data: JSON.parse(mdata)
-   };
+   }
    repl.innerHTML = json["post"]
-   return json["meta_data"]
-  } catch(e) {
-   console.log(e);
-  }
+   return json
  }
-  const _parse_template = (template, data) => {
+  const _parse_template = (template, data, options = {}) => {
     const key_val = {
       post: data.post,
-      tags: data.tag_user,
-      ...data.post_style_options
+      tags: data.html.tag_user,
+      "tags exists": data.html.tag_user ? 1 : 0,
+      ...data.meta_data.post_style_options
     }
-    const template_content = Array.from(document.querySelector("template"+template).content.childNodes).reduce((acc, curr) => acc += curr.outerHTML || curr.nodeValue || "","")
+    const template_class = options.templates || "poststyle_templates"
+    const template_content = Array.from(document.querySelector("template"+template+"."+template_class).content.childNodes).reduce((acc, curr) => acc += curr.outerHTML || curr.nodeValue || "","")
     const template_content_replaced = template_content.replaceAll(/\$\{([^\.]*?)\}/g, (_,p1) => key_val[p1]).replaceAll(/\$\{(.*?)\.(.*?)\}/g, (_,p1,p2) => key_val[p1][p2])
     return template_content_replaced
   }
   switch_demo("?showtopic")
-  const metadata = _parse_post(document.querySelector('.postcolor'))
+  const data = _parse_post(document.querySelector('.postcolor'))
+  const metadata = data.meta_data
   if(metadata.post_style === "---") return false;
     console.log(metadata.post_style)
   const style = styles[metadata.post_style]
   const [selector, _, callback] = style
-  const template = _parse_template(selector, { post: document.querySelector('.postcolor').innerHTML.trim(), ...metadata })
+  const template = _parse_template(selector, { ...data, post: document.querySelector('.postcolor').innerHTML.trim() })
   document.querySelector('.postcolor').innerHTML = template
   callback(document.querySelector('.postcolor'), metadata)
 })

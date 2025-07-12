@@ -1,19 +1,27 @@
 function bc_post_framework(...args){
  const _parse_post = (e, repl=e) => {
-  try {
-   const mhtml = e.querySelector("POSTMETADATA")
-   const mdata = mhtml ? e.querySelector("POSTMETADATA").innerHTML : e.innerHTML.slice(e.innerHTML.match(/\[\[metadata\]\]/im).index + 12, e.innerHTML.match(/\[\[\/metadata\]\]/im).index)
-   mhtml?.remove()
-   const post = mhtml ? e.innerHTML : e.innerHTML.slice(e.innerHTML.match(/\[\[\/metadata\]\]/im).index + 13)
+  
+    const m = {
+      "meta_begin": e.innerHTML.match(/\[\[metadata\]\]/im),
+      "meta_end": e.innerHTML.match(/\[\[\/metadata\]\]/im),
+      "post_begin": e.innerHTML.match(/\[\[post\]\]/im),
+      "post_end": e.innerHTML.match(/\[\[\/post\]\]/im),
+      "html_begin": e.innerHTML.match(/\[\[html\]\]/im),
+      "html_end": e.innerHTML.match(/\[\[\/html\]\]/im)
+    }
+   const mdata = e.innerHTML.slice(m.meta_begin.index + m.meta_begin[0].length, m.meta_end.index)
+  //  const tag = e.querySelector("hiddentag") ? e.querySelector("hiddentag").innerHTML : e.innerHTML.slice(m.tag_begin.index + m.tag_begin[0].length, m.tag_end.index)
+   const post = e.innerHTML.slice(m.post_begin.index + m.post_begin[0].length, m.post_end.index)
+   const html = e.innerHTML.slice(m.html_begin.index + m.html_begin[0].length, m.html_end.index)
+   const html_finder = [...html.matchAll(/\[\[(.*?)]](.*?)\[\[\/.*?]]/gim)]
+
    const json = {
     post: post,
+    html: Object.fromEntries(html_finder.map(f => [f[1], f[2]])),
     meta_data: JSON.parse(mdata)
-   };
+   }
    repl.innerHTML = json["post"]
-   return json["meta_data"]
-  } catch(e) {
-   console.log(e);
-  }
+   return json
  }
  const _load_post = (e, callback) => {
   if(!e) return false;
@@ -33,9 +41,9 @@ function bc_post_framework(...args){
      return []
     }
    }).filter(arr => arr.length > 0);
-   const post = document.REPLIER.post_area.value
+   const post = "[[post]]" + document.REPLIER.post_area.value + "[[/post]]"
    const json = Object.fromEntries(data)
-   document.REPLIER.Post.value = "[[metadata]]" + JSON.stringify(json) + "[[/metadata]]" + post
+   document.REPLIER.Post.value = "[[metadata]]" + JSON.stringify(json) + "[[/metadata]]" + post + "[[html]]" + Array.from(document.querySelectorAll(".post_areas"), area => "[["+area.name.split("post_area_")[1]+"]]" + area.value + "[[/"+area.name.split("post_area_")[1]+"]]").join("") + "[[/html]]"
   }
  }
  const _clone_area = (e) => {
@@ -44,6 +52,14 @@ function bc_post_framework(...args){
   e.hidden = "true";
   e.insertAdjacentElement("beforebegin", post_area);
   return post_area;
+ }
+ const _extra_fields = (cloned, schema, data) => {
+  Object.entries(schema).forEach(([k,]) => {
+    const name = "post_area_" + k;
+    cloned.insertAdjacentHTML("afterend", '<textarea class="post_areas" name="'+name+'" hidden></textarea>')
+    const el = cloned.nextElementSibling
+    el.value = data[k]
+  })
  }
  
  let [post, schema, callback] = args;
@@ -56,10 +72,11 @@ function bc_post_framework(...args){
   if(qe.disabled) return false;
   obs.disconnect();
   const post_area = _clone_area(qe);
-  const metadata = _parse_post(qe, post_area);
+  const parsed = _parse_post(qe, post_area);
+  _extra_fields(post_area, schema.html, parsed.html)
   post_area.onchange = (evt) => {
-   const post = evt.target.value.replaceAll('"', "&quot;");
-   const json = {"meta_data": metadata, "post": post};
+   const post = evt.target.value;
+   const json = {"meta_data": parsed.meta_data, "html": parsed.html, "post": post};
    qe.value = JSON.stringify(json);
   };
   obs.observe(evt[0].target.closest("[id*='pid_']"), {childList: true, subtree: true});
@@ -84,10 +101,11 @@ function bc_post_framework(...args){
    else { return document.REPLIER.post_as.options[index].innerText.split("»")[1].trim(); }
   }
  }
- schema = {...default_mdata, ...schema };
+ const normal_schema = {...default_mdata, ...schema.text};
  const post_area = _clone_area(document.REPLIER.Post);
  post_area.onchange = (evt) => document.REPLIER.Post.value = evt.target.value;
- const parsed_metadata = _parse_post(document.REPLIER.Post, post_area);
- document.REPLIER.addEventListener("submit", (e) => _submit_post(e, schema));
- return parsed_metadata;
+ const parsed = _parse_post(document.REPLIER.Post, post_area);
+ _extra_fields(post_area, schema.html, parsed.html)
+ document.REPLIER.addEventListener("submit", (e) => _submit_post(e, normal_schema));
+ return parsed;
 }
