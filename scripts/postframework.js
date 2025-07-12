@@ -2,9 +2,9 @@ function bc_post_framework(...args){
  const _parse_post = (e, repl=e) => {
   try {
    const mhtml = e.querySelector("POSTMETADATA")
-   const mdata = mhtml ? e.querySelector("POSTMETADATA").innerHTML : e.innerHTML.slice(e.innerHTML.match(/\[metadata\]/im).index + 10, e.innerHTML.match(/\[\/metadata\]/im).index)
+   const mdata = mhtml ? e.querySelector("POSTMETADATA").innerHTML : e.innerHTML.slice(e.innerHTML.match(/\[\[metadata\]\]/im).index + 12, e.innerHTML.match(/\[\[\/metadata\]\]/im).index)
    mhtml?.remove()
-   const post = mhtml ? e.innerHTML : e.innerHTML.slice(e.innerHTML.match(/\[\/metadata\]/im).index + 11)
+   const post = mhtml ? e.innerHTML : e.innerHTML.slice(e.innerHTML.match(/\[\[\/metadata\]\]/im).index + 13)
    const json = {
     post: post,
     meta_data: JSON.parse(mdata)
