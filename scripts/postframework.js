@@ -6,7 +6,7 @@ function bc_post_framework(...args){
    repl.innerHTML = json["post"].replaceAll("&amp;quot;",'"');
    return json["meta_data"]
   } catch(e) {
-   return false;
+   console.log(e);
   }
  }
  const _load_post = (e, callback) => {
