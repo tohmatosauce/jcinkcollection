@@ -42,7 +42,7 @@ function bc_post_framework(...args){
    }).filter(arr => arr.length > 0);
    const post = "[[post]]" + document.REPLIER.post_area.value + "[[/post]]"
    const json = Object.fromEntries(data)
-   document.REPLIER.Post.value = "[[metadata]]" + JSON.stringify(json) + "[[/metadata]]" + post + "[[html]]" + Array.from(document.querySelectorAll(".post_areas"), area => "[["+area.name.split("post_area_")[1]+"]]" + area.value + "[[/"+area.name.split("post_area_")[1]+"]]").join("") + "[[/html]]"
+   document.REPLIER.Post.value = "[[mdata]]" + JSON.stringify(json) + "[[/mdata]]" + post + "[[mhtml]]" + Array.from(document.querySelectorAll(".post_areas"), area => "[["+area.name.split("post_area_")[1]+"]]" + area.value + "[[/"+area.name.split("post_area_")[1]+"]]").join("") + "[[/mhtml]]"
   }
  }
  const _clone_area = (e) => {
