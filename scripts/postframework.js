@@ -2,15 +2,14 @@ function bc_post_framework(...args){
  const _parse_post = (e, repl=e) => {
   
     const m = {
-      "meta_begin": e.innerHTML.match(/\[\[metadata\]\]/im),
-      "meta_end": e.innerHTML.match(/\[\[\/metadata\]\]/im),
+      "meta_begin": e.innerHTML.match(/\[\[mdata\]\]/im),
+      "meta_end": e.innerHTML.match(/\[\[\/mdata\]\]/im),
       "post_begin": e.innerHTML.match(/\[\[post\]\]/im),
       "post_end": e.innerHTML.match(/\[\[\/post\]\]/im),
-      "html_begin": e.innerHTML.match(/\[\[html\]\]/im),
-      "html_end": e.innerHTML.match(/\[\[\/html\]\]/im)
+      "html_begin": e.innerHTML.match(/\[\[mhtml\]\]/im),
+      "html_end": e.innerHTML.match(/\[\[\/mhtml\]\]/im)
     }
    const mdata = e.innerHTML.slice(m.meta_begin.index + m.meta_begin[0].length, m.meta_end.index)
-  //  const tag = e.querySelector("hiddentag") ? e.querySelector("hiddentag").innerHTML : e.innerHTML.slice(m.tag_begin.index + m.tag_begin[0].length, m.tag_end.index)
    const post = e.innerHTML.slice(m.post_begin.index + m.post_begin[0].length, m.post_end.index)
    const html = e.innerHTML.slice(m.html_begin.index + m.html_begin[0].length, m.html_end.index)
    const html_finder = [...html.matchAll(/\[\[(.*?)]](.*?)\[\[\/.*?]]/gim)]
