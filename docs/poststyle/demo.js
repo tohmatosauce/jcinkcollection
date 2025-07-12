@@ -1,5 +1,5 @@
 const styles = {
-  "Audi": ["#_audi", { fields: ["square img", "lyrics #1"] }],
+  "Audi Audle": ["#_audi", { fields: ["square img", "lyrics #1"] }],
   "BMW": ["#_bmw", { fields: ["horizontal img", "lyrics #1", "lyrics #2"] }]
 }
 

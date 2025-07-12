@@ -55,15 +55,15 @@ function bc_post_style(...args) {
     menu.querySelector(".pformright").append(select)
     select.id = "post-style"
     select.name = "post_style"
-    stylemap.forEach((v, i) => menu.querySelector(".pformright select").insertAdjacentHTML("beforeend", "<option value='" + i + "'>" + v.name + "</option>"))
+    stylemap.forEach((v, i) => menu.querySelector(".pformright select").insertAdjacentHTML("beforeend", "<option>" + v.name + "</option>"))
     menu.addEventListener("change", (evt) => {
       const $this = evt.target
       document.querySelectorAll(".post-style-options").forEach(option => {
         option.setAttribute("data-visible", "false")
         option.querySelector(".pformright").children[0].required = false;
       })
-      if(parseInt($this.value)===0) return false;
-      const _selected = stylemap.get(parseInt($this.value))
+      if(parseInt($this.value)==="---") return false;
+      const _selected = stylemap.get($this.value)
       const _fields = _selected.fields.map(field => fieldmap.get(field))
       _fields.forEach(_f => {
         document.querySelector(".post-style-options[data-value='" + _f.value + "']").setAttribute("data-visible", "true")
@@ -72,10 +72,51 @@ function bc_post_style(...args) {
     })
   }
 
+  const _load_menu = (metadata, options) => {
+    if (!metadata) return false;
+    
+    document.REPLIER.post_style.value = metadata.post_style
+    document.querySelectorAll(".post-style-options").forEach(option => {
+      option.setAttribute("data-visible", "false")
+      option.querySelector(".pformright").children[0].required = false;
+    })
+    if(parseInt(document.REPLIER.post_style.value)==="---") return false;
+    const _selected = stylemap.get(document.REPLIER.post_style.value)
+    const _fields = _selected.fields.map(field => fieldmap.get(field))
+    _fields.forEach(_f => {
+      document.querySelector(".post-style-options[data-value='" + _f.value + "']").setAttribute("data-visible", "true")
+      document.querySelector(".post-style-options[data-value='" + _f.value + "'] .pformright").children[0].required = _f.required
+    })
+
+    const style_options = document.querySelectorAll(".post-style-options")
+    style_options.forEach(style => {
+      const name = style.dataset.id
+      const value = metadata.post_style_options[name]
+      style.querySelector(".pformright").children[0].value = value
+    })
+
+    if (options.usertag[0]) {
+      const tag_map = new Map(Array.from(document.REPLIER.tag_user.options, option => [option.innerText, option.value]))
+      metadata.tag_user.forEach(user => {
+        const id = tag_map.get(user)
+        document.REPLIER.tag_user.options[id].selected = true
+        const tag = document.createElement("tag")
+        document.querySelector(".tags_preview").append(tag)
+        tag.innerText = user
+        tag.addEventListener("click", () => {
+          document.REPLIER.tag_user.options[id].selected = false
+          tag.remove()
+        })
+      })
+      document.REPLIER.tag_user.selectedOptions
+    }
+    
+  }
+
   const _parse_template = (template, data) => {
     const key_val = {
       post: data.post,
-      tags: data.tag_user,
+      tags: data.tag_user.map(user => "@[" + user + "]"),
       "tags exists": data.tag_user ? 1 : 0,
       ...data.post_style_options
     }
@@ -87,19 +128,18 @@ function bc_post_style(...args) {
 
   // prepare styles by turning it into a map!
   const fieldmap = new Map(Object.entries(fieldlist).map(([k, v], i) => [k, { value: i, ...v }]))
-  const stylemap = new Map(Object.entries({ "---": [], ...styles }).map(([k, v], i) => [i, { name: k, ...v[1] }]))
+  const stylemap = new Map(Object.entries({ "---": [], ...styles }).map(([k, v]) => [k, { name: k, ...v[1] }]))
 
-  bc_post_framework(post, {
+  const framework = bc_post_framework(post, {
     "post_style": () => document.REPLIER.post_style.selectedOptions[0].innerText,
     "post_style_options": () => Object.fromEntries(Array.from(document.querySelectorAll(".post-style-options"), x => [ x.dataset.id, x.querySelector(".pformright").children[0].value ])),
-    "tag_user": () => Array.from(document.REPLIER.tag_user.selectedOptions, x => "@[" + x.innerHTML.trim() + "]"),
+    "tag_user": () => Array.from(document.REPLIER.tag_user.selectedOptions, x => x.innerHTML.trim()),
   }, function (e, metadata) {
     if(metadata.post_style === "---") return false
     const style = styles[metadata.post_style]
     const [selector, _, callback=()=>{}] = style
     const post_options_exists = Object.entries(metadata.post_style_options).map(([k,v]) => [k+" exists", v.trim() ? 1 : 0]);
     metadata.post_style_options = Object.fromEntries(post_options_exists.concat( Object.entries(metadata.post_style_options) ));
-    console.log(metadata)
     const template = _parse_template(selector, { post: e.innerHTML.trim(), ...metadata })
     e.innerHTML = template
     callback(e, metadata)
@@ -108,4 +148,5 @@ function bc_post_style(...args) {
   // post view
   if (!document.REPLIER.Post || document.REPLIER.qrc) return false
   _add_menu(stylemap, fieldmap, options)
+  _load_menu(framework, options)
 }

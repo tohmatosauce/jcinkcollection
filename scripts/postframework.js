@@ -81,6 +81,7 @@ function bc_post_framework(...args){
  schema = {...default_mdata, ...schema };
  const post_area = _clone_area(document.REPLIER.Post);
  post_area.onchange = (evt) => document.REPLIER.Post.value = evt.target.value;
- _parse_post(document.REPLIER.Post, post_area);
+ const parsed_metadata = _parse_post(document.REPLIER.Post, post_area);
  document.REPLIER.addEventListener("submit", (e) => _submit_post(e, schema));
+ return parsed_metadata;
 }
