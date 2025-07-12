@@ -1,26 +1,30 @@
 function bc_post_framework(...args){
  const _parse_post = (e, repl=e) => {
-  
-    const m = {
-      "meta_begin": e.innerHTML.match(/\[\[mdata\]\]/im),
-      "meta_end": e.innerHTML.match(/\[\[\/mdata\]\]/im),
-      "post_begin": e.innerHTML.match(/\[\[post\]\]/im),
-      "post_end": e.innerHTML.match(/\[\[\/post\]\]/im),
-      "html_begin": e.innerHTML.match(/\[\[mhtml\]\]/im),
-      "html_end": e.innerHTML.match(/\[\[\/mhtml\]\]/im)
+  if (!e.innerHTML.trim()) {
+    return {
+      post: '', html: {}, mdata: {}
     }
-   const mdata = e.innerHTML.slice(m.meta_begin.index + m.meta_begin[0].length, m.meta_end.index)
-   const post = e.innerHTML.slice(m.post_begin.index + m.post_begin[0].length, m.post_end.index)
-   const html = e.innerHTML.slice(m.html_begin.index + m.html_begin[0].length, m.html_end.index)
-   const html_finder = [...html.matchAll(/\[\[(.*?)]](.*?)\[\[\/.*?]]/gim)]
+  }
+  const m = {
+    "meta_begin": e.innerHTML.match(/\[\[mdata\]\]/im),
+    "meta_end": e.innerHTML.match(/\[\[\/mdata\]\]/im),
+    "post_begin": e.innerHTML.match(/\[\[post\]\]/im),
+    "post_end": e.innerHTML.match(/\[\[\/post\]\]/im),
+    "html_begin": e.innerHTML.match(/\[\[mhtml\]\]/im),
+    "html_end": e.innerHTML.match(/\[\[\/mhtml\]\]/im)
+  }
+  const mdata = e.innerHTML.slice(m.meta_begin.index + m.meta_begin[0].length, m.meta_end.index)
+  const post = e.innerHTML.slice(m.post_begin.index + m.post_begin[0].length, m.post_end.index)
+  const html = e.innerHTML.slice(m.html_begin.index + m.html_begin[0].length, m.html_end.index)
+  const html_finder = [...html.matchAll(/\[\[(.*?)]](.*?)\[\[\/.*?]]/gim)]
 
-   const json = {
-    post: post,
-    html: Object.fromEntries(html_finder.map(f => [f[1], f[2]])),
-    meta_data: JSON.parse(mdata)
-   }
-   repl.innerHTML = json["post"]
-   return json
+  const json = {
+  post: post,
+  html: Object.fromEntries(html_finder.map(f => [f[1], f[2]])),
+  meta_data: JSON.parse(mdata)
+  }
+  repl.innerHTML = json["post"]
+  return json
  }
  const _load_post = (e, callback) => {
   if(!e) return false;
@@ -57,7 +61,7 @@ function bc_post_framework(...args){
     const name = "post_area_" + k;
     cloned.insertAdjacentHTML("afterend", '<textarea class="post_areas" name="'+name+'" hidden></textarea>')
     const el = cloned.nextElementSibling
-    el.value = data[k]
+    el.value = data[k] ?? ''
   })
  }
  

@@ -81,7 +81,7 @@ function bc_post_style(...args) {
   }
 
   const _load_menu = (fw, options) => {
-    if (!fw) return false;
+    if (!document.REPLIER.Post.innerHTML.trim()) return false;
     const metadata = fw.meta_data
     
     document.REPLIER.post_style.value = metadata.post_style
@@ -89,22 +89,7 @@ function bc_post_style(...args) {
       option.setAttribute("data-visible", "false")
       option.querySelector(".pformright").children[0].required = false;
     })
-    if(document.REPLIER.post_style.value==="---") return false;
-    const _selected = stylemap.get(document.REPLIER.post_style.value)
-    const _fields = _selected.fields.map(field => fieldmap.get(field))
-    _fields.forEach(_f => {
-      document.querySelector(".post-style-options[data-value='" + _f.value + "']").setAttribute("data-visible", "true")
-      document.querySelector(".post-style-options[data-value='" + _f.value + "'] .pformright").children[0].required = _f.required
-    })
-
-    const style_options = document.querySelectorAll(".post-style-options")
-    style_options.forEach(style => {
-      const name = style.dataset.id
-      const value = metadata.post_style_options[name]
-      style.querySelector(".pformright").children[0].value = value
-    })
-
-    if (options.usertag[0]) {
+        if (options.usertag[0]) {
       const tag_finder = [...fw.html.tag_user.matchAll(/\[user=.*?](.*?)\[\/user]/gim)]
       const tag_map = new Map(Array.from(document.REPLIER.tag_user.options, option => [option.innerText, option.value]))
       tag_finder.forEach(user => {
@@ -124,17 +109,31 @@ function bc_post_style(...args) {
       document.REPLIER.tag_user.selectedOptions
     }
     
+    if(document.REPLIER.post_style.value==="---") return false;
+    const _selected = stylemap.get(document.REPLIER.post_style.value)
+    const _fields = _selected.fields.map(field => fieldmap.get(field))
+    _fields.forEach(_f => {
+      document.querySelector(".post-style-options[data-value='" + _f.value + "']").setAttribute("data-visible", "true")
+      document.querySelector(".post-style-options[data-value='" + _f.value + "'] .pformright").children[0].required = _f.required
+    })
+
+    const style_options = document.querySelectorAll(".post-style-options")
+    style_options.forEach(style => {
+      const name = style.dataset.id
+      const value = metadata.post_style_options[name]
+      style.querySelector(".pformright").children[0].value = value
+    })
   }
 
   const _parse_template = (template, data, options) => {
     const key_val = {
       post: data.post,
-      tags: data.html.tag_user,
+      tags: data.html.tag_user || "",
       "tags exists": data.html.tag_user ? 1 : 0,
       ...data.meta_data.post_style_options
     }
     const template_class = options.templates || "poststyle_templates"
-    const template_content = Array.from(document.querySelector("template"+template+"."+template_class).content.childNodes).reduce((acc, curr) => acc += curr.outerHTML || curr.nodeValue || "","")
+    const template_content = data.meta_data.post_style === "---" ? ("${post}"+ (data.html.tag_user?"<br><br>${tags}":"")) : Array.from(document.querySelector("template"+template+"."+template_class).content.childNodes).reduce((acc, curr) => acc += curr.outerHTML || curr.nodeValue || "","")
     const template_content_replaced = template_content.replaceAll(/\$\{([^\.]*?)\}/g, (_,p1) => key_val[p1]).replaceAll(/\$\{(.*?)\.(.*?)\}/g, (_,p1,p2) => key_val[p1][p2])
     return template_content_replaced
   }
@@ -153,9 +152,8 @@ function bc_post_style(...args) {
       }
     }, function (e, json) {
       const metadata = json.meta_data
-      if(metadata.post_style === "---") return false
       const style = styles[metadata.post_style]
-      const [selector, _, callback=()=>{}] = style
+      const [selector = "", _, callback = ()=>{}] = (metadata.post_style === "---")  ? ['', '', ()=>{}] : style
       const post_options_exists = Object.entries(metadata.post_style_options).map(([k,v]) => [k+" exists", v.trim() ? 1 : 0]);
       metadata.post_style_options = Object.fromEntries(post_options_exists.concat( Object.entries(metadata.post_style_options) ));
       const template = _parse_template(selector, json, options)
