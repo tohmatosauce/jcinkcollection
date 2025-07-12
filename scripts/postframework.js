@@ -33,9 +33,9 @@ function bc_post_framework(...args){
      return []
     }
    }).filter(arr => arr.length > 0);
-   const post = document.REPLIER.post_area.value.replaceAll('"', "&quot;");
-   const json = {"meta_data": Object.fromEntries(data), "post": post};
-   document.REPLIER.Post.value = JSON.stringify(json).replaceAll("\\n", "\n");
+   const post = document.REPLIER.post_area.value
+   const json = Object.fromEntries(data)
+   document.REPLIER.Post.value = "[[metadata]]" + JSON.stringify(json) + "[[/metadata]]" + post
   }
  }
  const _clone_area = (e) => {

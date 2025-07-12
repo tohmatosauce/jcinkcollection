@@ -34,16 +34,22 @@ document.REPLIER.addEventListener("submit", () => {
   if(document.REPLIER.Post.value.length < 1) return false
   document.querySelector('.postcolor').innerHTML = document.REPLIER.Post.value
   // console.log(document.REPLIER.Post.value)
-  const _parse_post = (e, repl = e) => {
-    try {
-      const str = e.innerHTML.trim().replaceAll("\n", "\\n");;
-      const json = JSON.parse(str)
-      repl.innerHTML = json["post"].replaceAll("&amp;quot;", '"')
-      return json["meta_data"]
-    } catch (e) {
-      return false;
-    }
+ const _parse_post = (e, repl=e) => {
+  try {
+   const mhtml = e.querySelector("POSTMETADATA")
+   const mdata = mhtml ? e.querySelector("POSTMETADATA").innerHTML : e.innerHTML.slice(e.innerHTML.match(/\[\[metadata\]\]/im).index + 12, e.innerHTML.match(/\[\[\/metadata\]\]/im).index)
+   mhtml?.remove()
+   const post = mhtml ? e.innerHTML : e.innerHTML.slice(e.innerHTML.match(/\[\[\/metadata\]\]/im).index + 13)
+   const json = {
+    post: post,
+    meta_data: JSON.parse(mdata)
+   };
+   repl.innerHTML = json["post"]
+   return json["meta_data"]
+  } catch(e) {
+   console.log(e);
   }
+ }
   const _parse_template = (template, data) => {
     const key_val = {
       post: data.post,
