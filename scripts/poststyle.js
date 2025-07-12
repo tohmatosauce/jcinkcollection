@@ -1,4 +1,6 @@
 function bc_post_style(...args) {
+  const [post, styles, fieldlist, options] = args
+
   const _add_menu = (stylemap, fieldmap, options) => {
     const menu = document.createElement("tr")
     const select = document.createElement("select")
@@ -77,12 +79,12 @@ function bc_post_style(...args) {
       "tags exists": data.tag_user ? 1 : 0,
       ...data.post_style_options
     }
-    const template_content = Array.from(document.querySelector("template"+template).content.childNodes).reduce((acc, curr) => acc += curr.outerHTML || curr.nodeValue || "","")
+    const template_class = options.templates || "poststyle_templates"
+    const template_content = Array.from(document.querySelector("template"+template+"."+template_class).content.childNodes).reduce((acc, curr) => acc += curr.outerHTML || curr.nodeValue || "","")
     const template_content_replaced = template_content.replaceAll(/\$\{([^\.]*?)\}/g, (_,p1) => key_val[p1]).replaceAll(/\$\{(.*?)\.(.*?)\}/g, (_,p1,p2) => key_val[p1][p2])
     return template_content_replaced
   }
 
-  const [post, styles, fieldlist, options] = args
   // prepare styles by turning it into a map!
   const fieldmap = new Map(Object.entries(fieldlist).map(([k, v], i) => [k, { value: i, ...v }]))
   const stylemap = new Map(Object.entries({ "---": [], ...styles }).map(([k, v], i) => [i, { name: k, ...v[1] }]))

@@ -25,6 +25,7 @@ bc_post_style(".postcolor", styles, {
     html: `<input type="text" placeholder="a short lyric #2"/>`
   }
 }, {
+  "templates": "poststyle_templates",
   "usertag": [true, ["AMa-10", "Isidro", "Sona", "Metis Geraldine"]]
 }
 )

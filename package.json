@@ -9,7 +9,7 @@
   "scripts": {
     "compile:sass": "sass --no-source-map style/src/index.scss main.scss --style compressed",
     "prefix:css": "postcss --no-map autoprefixer main.css -o main.css",
-    "build": "npm run compile:sass && npm run concat:sass && npm run prefix:css",
+    "build": "npm run compile:sass && npm run prefix:css",
     "dev": "sass --watch style/src/index.scss main.css"
   },
   "author": "tohmatosauce",
