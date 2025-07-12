@@ -103,9 +103,11 @@ function bc_post_framework(...args){
  }
  const normal_schema = {...default_mdata, ...schema.text};
  const post_area = _clone_area(document.REPLIER.Post);
+ post_area.disabled = true
  post_area.onchange = (evt) => document.REPLIER.Post.value = evt.target.value;
  const parsed = _parse_post(document.REPLIER.Post, post_area);
  _extra_fields(post_area, schema.html, parsed.html)
  document.REPLIER.addEventListener("submit", (e) => _submit_post(e, normal_schema));
+ post_area.disabled = false
  return parsed;
 }
