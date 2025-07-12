@@ -116,7 +116,7 @@ function bc_post_style(...args) {
   const _parse_template = (template, data) => {
     const key_val = {
       post: data.post,
-      tags: data.tag_user,
+      tags: data.tag_user.map(user => "@[" + user + "]"),
       "tags exists": data.tag_user ? 1 : 0,
       ...data.post_style_options
     }
@@ -133,7 +133,7 @@ function bc_post_style(...args) {
   const framework = bc_post_framework(post, {
     "post_style": () => document.REPLIER.post_style.selectedOptions[0].innerText,
     "post_style_options": () => Object.fromEntries(Array.from(document.querySelectorAll(".post-style-options"), x => [ x.dataset.id, x.querySelector(".pformright").children[0].value ])),
-    "tag_user": () => Array.from(document.REPLIER.tag_user.selectedOptions, x => "@[" + x.innerHTML.trim() + "]"),
+    "tag_user": () => Array.from(document.REPLIER.tag_user.selectedOptions, x => x.innerHTML.trim()),
   }, function (e, metadata) {
     if(metadata.post_style === "---") return false
     const style = styles[metadata.post_style]
