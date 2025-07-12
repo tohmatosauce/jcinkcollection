@@ -1,5 +1,6 @@
 function bc_post_style(...args) {
   const [post, styles, fieldlist, options] = args
+  if (!post && !document.REPLIER?.Post) return false
 
   const _add_menu = (stylemap, fieldmap, options) => {
     const menu = document.createElement("tr")

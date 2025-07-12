@@ -92,7 +92,7 @@ function bc_post_framework(...args){
   observe.observe(pid, {childList: true, subtree: true})
  })
 
- if(!document.REPLIER.Post) return false
+ if(!document.REPLIER?.Post) return false
  // posting view
  // need to convert any double quotes into their encoded counterpart &quot; we can convert back after the fact.
  const default_mdata = {
