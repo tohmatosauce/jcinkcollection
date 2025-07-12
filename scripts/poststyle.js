@@ -74,6 +74,7 @@ function bc_post_style(...args) {
     const key_val = {
       post: data.post,
       tags: data.tag_user,
+      "tags exists": data.tag_user ? 1 : 0,
       ...data.post_style_options
     }
     const template_content = Array.from(document.querySelector("template"+template).content.childNodes).reduce((acc, curr) => acc += curr.outerHTML || curr.nodeValue || "","")
@@ -94,6 +95,9 @@ function bc_post_style(...args) {
     if(metadata.post_style === "---") return false
     const style = styles[metadata.post_style]
     const [selector, _, callback=()=>{}] = style
+    const post_options_exists = Object.entries(metadata.post_style_options).map(([k,v]) => [k+" exists", v.trim() ? 1 : 0]);
+    metadata.post_style_options = Object.fromEntries(post_options_exists.concat( Object.entries(metadata.post_style_options) ));
+    console.log(metadata)
     const template = _parse_template(selector, { post: e.innerHTML.trim(), ...metadata })
     e.innerHTML = template
     callback(e, metadata)
