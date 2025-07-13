@@ -35,6 +35,7 @@ function bc_post_framework(...args){
   if(!e) return false;
   const metadata = _parse_post(e);
   callback(e, metadata);
+  return metadata;
  }
  const _submit_post = (evt, schema) => {
   let validate = false;
@@ -74,26 +75,26 @@ function bc_post_framework(...args){
  
  // topic view
  const posts = document.querySelectorAll(post);
- const observe = new MutationObserver(function(evt, obs){
-  const qe = evt[0].target.querySelector(".editor textarea");
-  if(!qe) return _load_post(evt[0].target.querySelector(post), callback);
-  if(qe.disabled) return false;
-  obs.disconnect();
-  const post_area = _clone_area(qe);
-  const parsed = _parse_post(qe, post_area);
-  _extra_fields(post_area, schema.html, parsed.html)
-  post_area.onchange = (evt) => {
-   const post = "[[post]]" + evt.target.value + "[[/post]]"
-   const json = Object.fromEntries(parsed.meta_data)
-   qe.value = "[[mdata]]" + JSON.stringify(json) + "[[/mdata]]" + post + "[[mhtml]]" + Array.from(parsed.html, area => "[["+area.name.split("post_area_")[1]+"]]" + area.value + "[[/"+area.name.split("post_area_")[1]+"]]").join("") + "[[/mhtml]]"
-  };
-  obs.observe(evt[0].target.closest("[id*='pid_']"), {childList: true, subtree: true});
- });
  posts.forEach(e => {
   _load_post(e, callback);
   // quick edit
   const pid = e.closest("[id*='pid_']");
   if(!pid) return false;
+  const observe = new MutationObserver(function(evt, obs){
+    const qe = evt[0].target.querySelector(".editor textarea");
+    if(!qe) return _load_post(evt[0].target.querySelector(post), callback);
+    if(qe.disabled) return false;
+    obs.disconnect();
+    const post_area = _clone_area(qe);
+    const parsed = _parse_post(qe, post_area);
+    _extra_fields(post_area, schema.html, parsed.html)
+    post_area.onchange = (evt) => {
+      const post = "[[post]]" + evt.target.value + "[[/post]]"
+      const json = Object.fromEntries(parsed.meta_data)
+      qe.value = "[[mdata]]" + JSON.stringify(json) + "[[/mdata]]" + post + "[[mhtml]]" + Array.from(parsed.html, area => "[["+area.name.split("post_area_")[1]+"]]" + area.value + "[[/"+area.name.split("post_area_")[1]+"]]").join("") + "[[/mhtml]]"
+    };
+    obs.observe(evt[0].target.closest("[id*='pid_']"), {childList: true, subtree: true});
+  });
   observe.observe(pid, {childList: true, subtree: true})
  })
 
