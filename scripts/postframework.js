@@ -41,7 +41,7 @@ function bc_post_framework(...args){
   let validate = false;
   try { validate = ValidateForm(); } 
   catch { validate = true; }
-  if(evt.submitter.name !== "preview" && (!document.REPLIER.TopicTitle || document.REPLIER.TopicTitle.value.length >= 2) && validate) {
+  if((!document.REPLIER.TopicTitle || document.REPLIER.TopicTitle.value.length >= 2) && validate) {
    const data = Object.entries(schema).map(([k,v])=> {
     try {
      const name = k, value = v();
@@ -80,7 +80,10 @@ function bc_post_framework(...args){
   _load_post(e, callback);
   // quick edit
   const pid = e.closest("[id*='pid_']");
-  if(!pid) return false;
+  if(!pid) {
+    e.setAttribute("data-visible", "true")
+    return false;
+  }
   const observe = new MutationObserver(function(evt, obs){
     const qe = evt[0].target.querySelector(".editor textarea");
     if(!qe) {
@@ -120,7 +123,7 @@ function bc_post_framework(...args){
  const post_area = _clone_area(document.REPLIER.Post);
  post_area.setAttribute("data-visible", "false")
  post_area.disabled = true
- post_area.onchange = (evt) => document.REPLIER.Post.value = evt.target.value;
+//  post_area.onchange = (evt) => document.REPLIER.Post.value = evt.target.value;
  const parsed = _parse_post(document.REPLIER.Post, post_area);
  _extra_fields(post_area, schema.html, parsed.html)
  document.REPLIER.addEventListener("submit", (e) => _submit_post(e, normal_schema));
