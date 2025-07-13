@@ -76,7 +76,7 @@ function bc_post_framework(...args){
  // topic view
  const posts = document.querySelectorAll(post);
  posts.forEach(e => {
-  e.disabled = true
+  e.setAttribute("disabled", "true")
   _load_post(e, callback);
   // quick edit
   const pid = e.closest("[id*='pid_']");
@@ -97,7 +97,7 @@ function bc_post_framework(...args){
     obs.observe(evt[0].target.closest("[id*='pid_']"), {childList: true, subtree: true});
   });
   observe.observe(pid, {childList: true, subtree: true})
-  e.disabled = false
+  e.setAttribute("disabled", "false")
  })
 
  if(!document.REPLIER?.Post) return false
