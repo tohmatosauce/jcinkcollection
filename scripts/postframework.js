@@ -1,6 +1,11 @@
 function bc_post_framework(...args){
  const _parse_post = (e, repl=e) => {
   try {
+    if(!e.innerHTML.trim()) {
+      return {
+        post: '', html: {}, mdata: {}
+      }
+    }
    const m = {
      "meta_begin": e.innerHTML.match(/\[\[mdata\]\]/im),
      "meta_end": e.innerHTML.match(/\[\[\/mdata\]\]/im),
@@ -23,9 +28,7 @@ function bc_post_framework(...args){
    return json
   } catch (e) {
    console.log(e)
-    return {
-      post: '', html: {}, mdata: {}
-    }
+    return false
   }
  }
  const _load_post = (e, callback) => {

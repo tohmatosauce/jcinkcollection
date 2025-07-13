@@ -75,6 +75,7 @@ document.REPLIER.addEventListener("submit", () => {
   }
   switch_demo("?showtopic")
   const data = _parse_post(document.querySelector('.postcolor'))
+  if(!data) return false
   const metadata = data.meta_data
   const style = styles[metadata.post_style]
   const [selector = "", _, callback = ()=>{}] = (metadata.post_style === "---")  ? ['', '', ()=>{}] : style

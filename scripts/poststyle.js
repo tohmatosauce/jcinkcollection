@@ -152,6 +152,7 @@ function bc_post_style(...args) {
         "tag_user": () => Array.from(document.REPLIER.tag_user.selectedOptions, x => "@[" + x.innerHTML.trim() + "]")
       }
     }, function (e, json) {
+      if(!json) return false
       const metadata = json.meta_data
       const style = styles[metadata.post_style]
       const [selector = "", _, callback = ()=>{}] = (metadata.post_style === "---")  ? ['', '', ()=>{}] : style
