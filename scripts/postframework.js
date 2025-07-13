@@ -76,7 +76,7 @@ function bc_post_framework(...args){
  // topic view
  const posts = document.querySelectorAll(post);
  posts.forEach(e => {
-  e.setAttribute("disabled", "true")
+  e.setAttribute("data-visible", "false")
   _load_post(e, callback);
   // quick edit
   const pid = e.closest("[id*='pid_']");
@@ -84,7 +84,7 @@ function bc_post_framework(...args){
   const observe = new MutationObserver(function(evt, obs){
     const qe = evt[0].target.querySelector(".editor textarea");
     if(!qe) {
-      e.setAttribute("disabled", "false")
+      e.setAttribute("data-visible", "true")
       return _load_post(evt[0].target.querySelector(post), callback);
     }
     if(qe.disabled) return false;
@@ -100,7 +100,7 @@ function bc_post_framework(...args){
     obs.observe(evt[0].target.closest("[id*='pid_']"), {childList: true, subtree: true});
   });
   observe.observe(pid, {childList: true, subtree: true})
-  e.setAttribute("disabled", "false")
+  e.setAttribute("data-visible", "true")
  })
 
  if(!document.REPLIER?.Post) return false
@@ -117,11 +117,13 @@ function bc_post_framework(...args){
  }
  const normal_schema = {...default_mdata, ...schema.text};
  const post_area = _clone_area(document.REPLIER.Post);
- post_area.setAtteibute("disabled", "true")
+ post_area.setAttribute("data-visible", "false")
+ post_area.disabled = true
  post_area.onchange = (evt) => document.REPLIER.Post.value = evt.target.value;
  const parsed = _parse_post(document.REPLIER.Post, post_area);
  _extra_fields(post_area, schema.html, parsed.html)
  document.REPLIER.addEventListener("submit", (e) => _submit_post(e, normal_schema));
- post_area.setAtteibute("disabled", "false")
+ post_area.setAttribute("data-visible", "true")
+ post_area.disabled = false
  return parsed;
 }
