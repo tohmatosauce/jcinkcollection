@@ -18,7 +18,7 @@ function bc_post_style(...args) {
       tagmenu.innerHTML = "<select name='tag_user' multiple hidden disabled>" + Array.from(users).map(([i, user]) => "<option value='" + i + "'>" + user + "</option>").join("") + "</select><td class='pformleft'>Tag user(s)</td><td class='pformright'><div class='tags_preview'></div><input type='text' name='tag_user_search' placeholder='Search user(s)'/><select name='tag_user_view' style='display:none;overflow:auto' multiple></select></td>"
       document.REPLIER.tag_user_search.addEventListener("input", (evt) => {
         const searchkey = evt.target.value;
-        const matched = Array.from(users).filter(([, x]) => searchkey.length > 0 && Array.from(document.REPLIER.tag_user.selectedOptions, o => o.innerText).indexOf(x) === -1 && x.toLowerCase().startsWith(searchkey.toLowerCase()));
+        const matched = Array.from(users).filter(([, x]) => searchkey.length > 0 && Array.from(document.REPLIER.tag_user.selectedOptions, o => o.innerText).indexOf(x) === -1 && x.toLowerCase().includes(searchkey.toLowerCase()));
         if (matched.length > 0) {
           document.REPLIER.tag_user_view.style.display = 'initial'
           document.REPLIER.tag_user_view.innerHTML = ''
@@ -90,7 +90,7 @@ function bc_post_style(...args) {
       option.setAttribute("data-visible", "false")
       option.querySelector(".pformright").children[0].required = false;
     })
-        if (options.usertag[0]) {
+        if (options.usertag[0] && fw.html.tag_user) {
       const tag_finder = [...fw.html.tag_user.matchAll(/\[user=.*?](.*?)\[\/user]/gim)]
       const tag_map = new Map(Array.from(document.REPLIER.tag_user.options, option => [option.innerText, option.value]))
       tag_finder.forEach(user => {
