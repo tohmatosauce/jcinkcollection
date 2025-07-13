@@ -95,7 +95,7 @@ function bc_post_framework(...args){
     _extra_fields(post_area, schema.html, parsed.html)
     post_area.onchange = (evt) => {
       const post = "[[post]]" + evt.target.value + "[[/post]]"
-      const json = Object.fromEntries(parsed.meta_data)
+      const json = parsed.meta_data
       qe.value = "[[mdata]]" + JSON.stringify(json) + "[[/mdata]]" + post + "[[mhtml]]" + Array.from(parsed.html, area => "[["+area.name.split("post_area_")[1]+"]]" + area.value + "[[/"+area.name.split("post_area_")[1]+"]]").join("") + "[[/mhtml]]"
     };
     obs.observe(evt[0].target.closest("[id*='pid_']"), {childList: true, subtree: true});
