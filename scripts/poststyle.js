@@ -163,12 +163,15 @@ function bc_post_style(...args) {
     }
   );
 
+  document.querySelectorAll(".codebuttons[onclick*='simpletag']").forEach(btn => btn.setAttribute('onclick', btn.getAttribute('onclick').replace("simpletag","ins_tag")))
+  
   // post view
   if (!document.REPLIER.Post || document.REPLIER.qrc) return false
   _add_menu(stylemap, fieldmap, options)
   _load_menu(framework, options)
-  
-  // has to be hijacked b/c we killed the Post whoops
+}
+
+// has to be hijacked b/c we killed the Post whoops
   /*-----------------------*\
   |*  jcink bbcode object  *|
   \*-----------------------*/
@@ -226,6 +229,3 @@ function bc_post_style(...args) {
           jBBCode.openTags+='|'+tag;
       }
   }
-
-  document.querySelectorAll(".codebuttons[onclick*='simpletag']").forEach(btn => btn.setAttribute('onclick', btn.getAttribute('onclick').replace("simpletag","ins_tag")))
-}
