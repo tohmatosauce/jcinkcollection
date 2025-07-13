@@ -183,7 +183,7 @@ function bc_post_style(...args) {
 
   var is_ie = !!navigator.userAgent.match(/msie/i);
   var ieVersion=(!!navigator.userAgent.match(/msie/i))?navigator.userAgent.split(/MSIE/i)[1].split(/;/)[0]:0,
-  var jBBCode = () => {
+  jBBCode = () => {
     //quick reference this
     var bb = this;
     //addTag overloaded function
