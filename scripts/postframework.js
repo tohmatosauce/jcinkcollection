@@ -84,8 +84,9 @@ function bc_post_framework(...args){
   const observe = new MutationObserver(function(evt, obs){
     const qe = evt[0].target.querySelector(".editor textarea");
     if(!qe) {
-      e.setAttribute("data-visible", "true")
-      return _load_post(evt[0].target.querySelector(post), callback);
+      _load_post(evt[0].target.querySelector(post), callback);
+      evt[0].target.querySelector(post)?.setAttribute("data-visible", "true");
+      return
     }
     if(qe.disabled) return false;
     obs.disconnect();
