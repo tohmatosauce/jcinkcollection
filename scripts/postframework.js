@@ -83,7 +83,10 @@ function bc_post_framework(...args){
   if(!pid) return false;
   const observe = new MutationObserver(function(evt, obs){
     const qe = evt[0].target.querySelector(".editor textarea");
-    if(!qe) return _load_post(evt[0].target.querySelector(post), callback);
+    if(!qe) {
+      e.setAttribute("disabled", "false")
+      return _load_post(evt[0].target.querySelector(post), callback);
+    }
     if(qe.disabled) return false;
     obs.disconnect();
     const post_area = _clone_area(qe);
@@ -114,11 +117,11 @@ function bc_post_framework(...args){
  }
  const normal_schema = {...default_mdata, ...schema.text};
  const post_area = _clone_area(document.REPLIER.Post);
- post_area.disabled = true
+ post_area.setAtteibute("disabled", "true")
  post_area.onchange = (evt) => document.REPLIER.Post.value = evt.target.value;
  const parsed = _parse_post(document.REPLIER.Post, post_area);
  _extra_fields(post_area, schema.html, parsed.html)
  document.REPLIER.addEventListener("submit", (e) => _submit_post(e, normal_schema));
- post_area.disabled = false
+ post_area.setAtteibute("disabled", "false")
  return parsed;
 }
