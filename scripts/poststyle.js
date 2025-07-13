@@ -164,7 +164,7 @@ function bc_post_style(...args) {
   );
 
   document.querySelectorAll(".codebuttons[onclick*='simpletag']").forEach(btn => btn.setAttribute('onclick', btn.getAttribute('onclick').replace("simpletag","ins_tag")))
-  
+
   // post view
   if (!document.REPLIER.Post || document.REPLIER.qrc) return false
   _add_menu(stylemap, fieldmap, options)
@@ -182,7 +182,153 @@ function bc_post_style(...args) {
   *****************************/
 
   var is_ie = !!navigator.userAgent.match(/msie/i);
-  var ieVersion=(!!navigator.userAgent.match(/msie/i))?navigator.userAgent.split(/MSIE/i)[1].split(/;/)[0]:0;
+  var ieVersion=(!!navigator.userAgent.match(/msie/i))?navigator.userAgent.split(/MSIE/i)[1].split(/;/)[0]:0,
+  jBBCode = new function () {
+    //quick reference this
+    var bb = this;
+    //addTag overloaded function
+    bb.addTag = function(jbTag,jbClsTag) {
+        /*------------------------------------------------------*\
+        |* jbTag: The tag to be inserted.                       *|
+        |* jbClsTag: closing tag, used if we have selected text *|
+        \*------------------------------------------------------*/
+        var start, end, selection, replacement, caretPos, first, second,
+            newString, newPos, editor = document.REPLIER.post_area;
+        if ( is_ie && ieVersion < 10) {
+            if(editor.isTextEdit) { // this doesn't work for NS, but it works for IE 4+ and compatible browsers
+                editor.focus();
+                var sel = document.selection;
+                var rng = sel.createRange();
+                rng.colapse;
+                if((sel.type == "Text" || sel.type == "None") && rng != null) {
+                    if(jbClsTag != null && rng.text.length > 0) {
+                        jbTag += rng.text + jbClsTag;
+                    }
+                    rng.text = jbTag;
+                }
+            } else {
+                editor.value += jbTag;
+            }
+        } else if (jbClsTag != null) {
+            editor.focus();
+            start       = editor.selectionStart;
+            end         = editor.selectionEnd;
+            first       = editor.value.substring(0, start);
+            selection   = editor.value.substring(start,end);
+            second      = editor.value.substring(end, editor.value.length);
+            newString   = first + jbTag +selection + jbClsTag + second;
+            editor.value = newString;
+            newPos      = end + jbTag.length + jbClsTag.length;
+            if (editor.setSelectionRange) {
+                editor.setSelectionRange(start, newPos);
+            } else if (editor.createTextRange) {
+                var range = editor.createTextRange();
+                range.collapse(true);
+                range.moveEnd('character', start);
+                range.moveStart('character', newPos);
+                range.select();
+            }
+        } else {
+            editor.focus();
+            caretPos  = editor.selectionStart;
+            first     = editor.value.substring(0, caretPos);
+            second    = editor.value.substring(caretPos, editor.value.length);
+            newString = first + jbTag + second;
+            editor.value = newString;
+            newPos    = first.length + jbTag.length;
+            if (editor.setSelectionRange) {
+                editor.setSelectionRange(newPos, newPos);
+            } else if (editor.createTextRange) {
+                var range = editor.createTextRange();
+                range.collapse(true);
+                range.moveEnd('character', newPos);
+                range.moveStart('character', newPos);
+                range.select();
+            }
+        }
+        editor.focus();
+    };
+    bb.getButton = function (name) {
+        if (name == 'CODE') {
+            return document.getElementsByName(name)[1]
+        }
+        return document.getElementsByName(name)[0]
+    };
+    //help texts
+    bb.help = {};
+    bb.help["bold"]           = "Insert Bold Text";
+    bb.help["italic"]         = "Insert Italic Text";
+    bb.help["under"]          = "Insert Underlined Text";
+    bb.help["font"]           = "Insert Font Face tags";
+    bb.help["size"]           = "Insert Font Size tags";
+    bb.help["color"]          = "Insert Font Color tags";
+    bb.help["close"]          = "Close all open tags";
+    bb.help["url"]            = "Insert Hyperlink";
+    bb.help["img"]            = "Image [img]https://www.dom.com/img.gif[/img]";
+    bb.help["taguser"]        = "Insert @user tag";
+    bb.help["quote"]          = "Insert Quoted Text";
+    bb.help["list"]           = "Create a list";
+    bb.help["code"]           = "Insert Monotype Text";
+    bb.help["click_close"]    = "Click button again to close";
+    bb.help["dohtml"]         = "Enables HTML where allowed";
+	bb.help["align"]           = "Insert Alignment tags";
+		
+    //error texts
+    bb.error = {};
+    bb.error["no_url"]    = "You must enter a URL";
+	bb.error["no_title"]  = "You must enter a title";
+    //prompt texts
+    bb.text = {};
+	bb.text["enter_url"]      = "Enter the complete URL for the hyperlink";
+	bb.text["enter_url_name"] = "Enter the title of the webpage";
+	bb.text["enter_image"]    = "Enter the complete URL for the image";
+	bb.text["enter_usernametag"]  = "Enter the full user name of the member you wish to tag/alert.";
+	bb.text["code"]           = "Usage: [CODE] Your Code Here.. [/CODE]";
+	bb.text["quote"]          = "Usage: [QUOTE] Your Quote Here.. [/QUOTE]";
+    bb.text["list_prompt"]    = "Enter a list item. Click 'cancel' or leave blank to end the list";
+	bb.text["start"]        = "Enter the text to be formatted";
+    bb.cookie = {
+        ingredients: decodeURIComponent,
+        mix: encodeURIComponent,
+        bake:function( name, value ) {
+            document.cookie = name+'='+this.mix(value);
+        },
+        jar:function(c_name) {
+            try {
+                return this.ingredients(document.cookie.match(new RegExp(c_name+"=([^;]+)"))[1]);
+            } catch(e) {
+                return "";
+            }
+        },
+        crumb:function(c_name){
+            c_name=this.jar(c_name);
+            if (c_name!=null && c_name!="") {
+                return true;
+            } else {
+                return false;
+            }
+        },
+        eat:function(c_name){
+            if (this.crumb(c_name)) {
+                this.bake(c_name,'',-99);
+            }
+        }
+    };
+    
+    bb.openTags = '';
+    
+    if (bb.cookie.crumb('bbmode')) {
+        bb.mode = bb.cookie.jar('bbmode');
+        if (bb.mode=='ezmode') {
+            document.REPLIER.bbmode[0].checked = true;
+        } else {
+            document.REPLIER.bbmode[1].checked = true;
+        }
+    } else {
+        bb.mode = 'normal';
+        document.REPLIER.bbmode[1].checked = true;
+    }
+  }
   // i think this is for the guided mode? uhh but i dont trust it LMAO so im gonna... override it anyway
 
   /*-------------------------------------------*\
