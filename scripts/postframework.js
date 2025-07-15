@@ -1,6 +1,5 @@
 function bc_post_framework(...args){
  const _parse_post = (e, repl=e) => {
-  try {
     if(!e.innerHTML.trim()) {
       return {
         post: '', html: {}, mdata: {}
@@ -14,22 +13,19 @@ function bc_post_framework(...args){
      "html_begin": e.innerHTML.match(/\[\[mhtml\]\]/im),
      "html_end": e.innerHTML.match(/\[\[\/mhtml\]\]/im)
    }
-   const mdata = e.innerHTML.slice(m.meta_begin.index + m.meta_begin[0].length, m.meta_end.index)
-   const post = e.innerHTML.slice(m.post_begin.index + m.post_begin[0].length, m.post_end.index)
-   const html = e.innerHTML.slice(m.html_begin.index + m.html_begin[0].length, m.html_end.index)
-   const html_finder = [...html.matchAll(/\[\[(.*?)]](.*?)\[\[\/.*?]]/gim)]
- 
+   
+   const mdata = (m.meta_begin && m.meta_end) ? e.innerHTML.slice(m.meta_begin.index + m.meta_begin[0].length, m.meta_end.index) : false
+   const post = (m.post_begin && m.post_end) ? e.innerHTML.slice(m.post_begin.index + m.post_begin[0].length, m.post_end.index) : false
+   const html = (m.html_begin && m.html_end) ? e.innerHTML.slice(m.html_begin.index + m.html_begin[0].length, m.html_end.index) : false
+   const html_finder = html ? [...html.matchAll(/\[\[(.*?)]](.*?)\[\[\/.*?]]/gim)] : ''
+
    const json = {
-   post: post,
-   html: Object.fromEntries(html_finder.map(f => [f[1], f[2]])),
-   meta_data: JSON.parse(mdata)
+     	post: post ? post : e.innerHTML,
+	    html: html ? Object.fromEntries(html_finder.map(f => [f[1], f[2]])) : false,
+	    meta_data: mdata ? JSON.parse(mdata) : false
    }
    repl.innerHTML = json["post"]
-   return json
-  } catch (e) {
-   console.log(e)
-    return false
-  }
+   return (!mdata && !post && !html) ? false : json
  }
  const _load_post = (e, callback) => {
   if(!e) return false;
@@ -38,6 +34,7 @@ function bc_post_framework(...args){
   return metadata;
  }
  const _submit_post = (evt, schema) => {
+  document.REPLIER.Post.value = document.REPLIER.post_area.value;
   let validate = false;
   try { validate = ValidateForm(); } 
   catch { validate = true; }
@@ -67,7 +64,7 @@ function bc_post_framework(...args){
     const name = "post_area_" + k;
     cloned.insertAdjacentHTML("afterend", '<textarea class="post_areas" name="'+name+'" hidden></textarea>')
     const el = cloned.nextElementSibling
-    el.value = data[k] ?? ''
+    el.value = data ? data[k] ?? '' : ''
   })
  }
  
@@ -109,7 +106,8 @@ function bc_post_framework(...args){
 
  if(!document.REPLIER?.Post) return false
  // posting view
- // need to convert any double quotes into their encoded counterpart &quot; we can convert back after the fact.
+ // need to convert any double quotes into their encoded counterpart " we can convert back after the fact.
+  document.REPLIER.setAttribute("onsubmit", "")
  const default_mdata = {
   "forum_id": () => document.REPLIER.f.value,
   "author_id": () => {
@@ -123,7 +121,7 @@ function bc_post_framework(...args){
  const post_area = _clone_area(document.REPLIER.Post);
  post_area.setAttribute("data-visible", "false")
  post_area.disabled = true
-//  post_area.onchange = (evt) => document.REPLIER.Post.value = evt.target.value;
+ // post_area.onchange = (evt) => document.REPLIER.Post.value = evt.target.value;
  const parsed = _parse_post(document.REPLIER.Post, post_area);
  _extra_fields(post_area, schema.html, parsed.html)
  document.REPLIER.addEventListener("submit", (e) => _submit_post(e, normal_schema));
