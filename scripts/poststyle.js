@@ -1,3 +1,4 @@
+// https://files.jcink.net/html/jbfcode.js
 // has to be hijacked b/c we killed the Post whoops
 document.addEventListener("DOMContentLoaded", () => {
 const tag = document.createElement("script");
@@ -222,38 +223,44 @@ function bc_post_style(...args) {
 	        document.REPLIER.tag_user_search.addEventListener("input", (evt) => {
 	          const searchkey = evt.target.value;
 	          const matched = Array.from(users).filter(([, x]) => searchkey.length > 0 && Array.from(document.REPLIER.tag_user.selectedOptions, o => o.innerText).indexOf(x) === -1 && x.toLowerCase().includes(searchkey.toLowerCase()));
+            const add_tag = (x) => {
+            		if (x.getAttribute("has-event") === "true") return false
+              	x.setAttribute("has-event", "true")
+	              // add to tag view
+	              const id = x.value
+	              document.REPLIER.tag_user.options[id].selected = true
+	              const tag = document.createElement("tag")
+	              tagmenu.querySelector(".tags_preview").append(tag)
+	              tag.innerText = x.innerText
+	              // check if usertag is already loaded in the textarea itself and add if not
+	              const tag_finder = [...document.REPLIER.post_area_tag_user.value.matchAll(/\[user=.*?](.*?)\[\/user]/gim)].map(user => user[1])
+	              if(tag_finder.indexOf(x.innerText) < 0) document.REPLIER.post_area_tag_user.value += "@[" + x.innerText + "]"
+	              // remove tag
+	              tag.addEventListener("click", () => {
+	                document.REPLIER.tag_user.options[id].selected = false
+                  x.selected = false
+	                tag.remove()
+	                const tag_matcher = [...document.REPLIER.post_area_tag_user.value.matchAll(/\[user=.*?](.*?)\[\/user]|@\[(.*?)]/gim)].filter(u => u[2] === x.innerText || u[1] === x.innerText)
+	                const tag_remover = tag_matcher.map(u => [u[0], u[2] ?? u[1]])
+	                if (tag_remover[0][1] === x.innerText) document.REPLIER.post_area_tag_user.value = document.REPLIER.post_area_tag_user.value.replace(tag_remover[0][0], '')
+	                x.style.display = "block"
+                  x.setAttribute("has-event", "false")
+                  document.REPLIER.tag_user_view.size = (document.REPLIER.tag_user_view.size + 1) < 4 ? (document.REPLIER.tag_user_view.size + 1) : 4
+	              })
+	              x.style.display = "none"
+	              // document.REPLIER.tag_user_search.value = ""
+	              document.REPLIER.tag_user_search.focus();
+            }
 	          if (matched.length > 0) {
 	            document.REPLIER.tag_user_view.style.display = 'initial'
 	            document.REPLIER.tag_user_view.innerHTML = ''
 	            document.REPLIER.tag_user_view.size = matched.length < 4 ? matched.length : 4
 	            document.REPLIER.tag_user_view.insertAdjacentHTML('beforeend', matched.map(([i, user]) => "<option value='" + i + "'>" + user + "</option>").join(""))
 	            document.REPLIER.tag_user_view.addEventListener("change", ()=>{
-	              Array.from(document.REPLIER.tag_user_view.selectedOptions).forEach(x => {
-	                if (x.getAttribute("has-event") === "true") return false
-	                x.setAttribute("has-event", "true")
-	                // add to tag view
-	                const id = x.value
-	                document.REPLIER.tag_user.options[id].selected = true
-	                const tag = document.createElement("tag")
-	                tagmenu.querySelector(".tags_preview").append(tag)
-	                tag.innerText = x.innerText
-	                // check if tag is already loaded in the textarea itself and add if not
-	                const tag_finder = [...document.REPLIER.post_area_tag_user.value.matchAll(/\[user=.*?](.*?)\[\/user]/gim)].map(user => user[1])
-	                if(tag_finder.indexOf(x.innerText) < 0) document.REPLIER.post_area_tag_user.value += "@[" + x.innerText + "]"
-	                // remove tag
-	                tag.addEventListener("click", () => {
-	                  document.REPLIER.tag_user.options[id].selected = false
-	                  tag.remove()
-	                  const tag_matcher = [...document.REPLIER.post_area_tag_user.value.matchAll(/\[user=.*?](.*?)\[\/user]|@\[(.*?)]/gim)].filter(u => u[2] === x.innerText || u[1] === x.innerText)
-	                  const tag_remover = tag_matcher.map(u => [u[0], u[2] ?? u[1]])
-	                  if (tag_remover[0][1] === x.innerText) document.REPLIER.post_area_tag_user.value = document.REPLIER.post_area_tag_user.value.replace(tag_remover[0][0], '')
-	                })
-	                x.remove()
-	                document.REPLIER.tag_user_search.value = ""
-	                document.REPLIER.tag_user_search.focus();
-	                document.REPLIER.tag_user_view.size = (matched.length - 1) < 4 ? matched.length - 1 : 4
-	                if (document.REPLIER.tag_user_view.size < 1) document.REPLIER.tag_user_view.style.display = 'none'
-	              })
+	              Array.from(document.REPLIER.tag_user_view.selectedOptions).forEach(x => add_tag(x))
+                const size = document.REPLIER.tag_user_view.options.length - document.REPLIER.tag_user_view.querySelectorAll("[has-event='true']").length
+	              document.REPLIER.tag_user_view.size = size < 4 ? size : 4
+	              if (document.REPLIER.tag_user_view.size < 1) document.REPLIER.tag_user_view.style.display = 'none'
 	            })
 	          } else {
 	            document.REPLIER.tag_user_view.style.display = 'none'
