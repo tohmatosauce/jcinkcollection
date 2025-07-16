@@ -383,4 +383,11 @@ function bc_post_style(...args) {
   _add_menu(stylemap, fieldmap, options, framework)
   // _load_menu(framework, options)
   document.querySelectorAll(".codebuttons[onclick*='simpletag']").forEach(btn => btn.setAttribute('onclick', btn.getAttribute('onclick').replace("simpletag","ins_tag")))
+	const bbcodes = document.querySelectorAll(".codebuttons");
+	const custombbcode_start = Array.from(bbcodes).indexOf( Array.from(document.querySelectorAll(".codebuttons[accesskey]")).slice(-1)[0] );
+	for(let i = custombbcode_start; i < bbcodes.length ; i++) {
+		const tag = bbcodes[i].value.trim()
+    bbcodes[i].name = tag
+		bbcodes[i].setAttribute("onclick", `ins_tag("${tag}")`)
+  }
 }
