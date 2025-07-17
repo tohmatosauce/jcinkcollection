@@ -10,15 +10,14 @@ function bc_better_ucp(args) {
   // Convert stringified variables embedded in the HTML templates into useable variables. Requires the field ID & associated template.
   const parse_template = (id, template) => {
     const forminput = document.querySelector("#ucpcontent .forminput[name='field_" + id + "']");
-    const key_val = new Object();
-    forminput ?
-      key_val.fields = {
+    const key_val = forminput ?
+      {
         label: forminput.closest("tr").querySelector("label").innerHTML,
-        description: Array.from(forminput.closest("tr").getElementsByTagName("td")[0].childNodes)[4].textContent.trim(),
+        description: Array.from(forminput.closest("tr").getElementsByTagName("td")[0].childNodes)[4]?.textContent.trim() ?? "",
         input: forminput.closest("td").innerHTML,
         id: id
       } :
-      key_val.inner_structure = {
+      {
         day: '<select name="day" class="forminput">' + document.querySelector("select[name='day']").innerHTML + '</select>',
         month: '<select name="month" class="forminput">' + document.querySelector("select[name='month']").innerHTML + '</select>',
         year: '<select name="year" class="forminput">' + document.querySelector("select[name='year']").innerHTML + '</select>',
@@ -28,7 +27,7 @@ function bc_better_ucp(args) {
         submit: document.querySelector("#ucpcontent form .forminput[type='submit']").closest("td").innerHTML
       }
     const template_content = Array.from(document.querySelector(template).content.childNodes).reduce((acc, curr) => acc += curr.outerHTML || curr.nodeValue || "", "");
-    const template_content_replaced = template_content.replaceAll(/(\$\{)(.*?)(\})/g, (m, _, p2) => key_val[forminput ? "fields" : "inner_structure"][p2]);
+    const template_content_replaced = template_content.replaceAll(/(\$\{)(.*?)(\})/g, (m, _, p2) => key_val[p2]);
     return template_content_replaced;
   }
 
