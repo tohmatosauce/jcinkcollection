@@ -158,7 +158,6 @@ function bc_better_ucp(args) {
   const objected_order = { ["#" + wrapper_name]: field_order };
   const order = Object.entries(flatten_object(objected_order)).map(([k, v]) => [k.split(" ").filter((str,) => Number.isNaN(parseInt(str)) ).join(" "), v]);
   
-  console.log( order )
   // Track nodes used
   const visited_nodes = [];
   for (const [selector, fields] of order) {
