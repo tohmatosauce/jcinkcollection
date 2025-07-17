@@ -155,11 +155,12 @@ function bc_better_ucp(args) {
   const inner_structure_parsed = new DOMParser().parseFromString(inner_structure_translated, "text/html")
   const inner_structure_body = inner_structure_parsed.getRootNode().body;
   wrapper.append(...inner_structure_body.childNodes);
-  const objected_order = new Object();
-  objected_order["#" + wrapper_name] = field_order;
-  const order = Object.entries(flatten_object(objected_order)).map(([k, v]) => [k.split(" ").filter((str,) => parseInt(str).toString().length !== str.length).join(" "), v]);
+  const objected_order = { ["#" + wrapper_name]: field_order };
+  const order = Object.entries(flatten_object(objected_order)).map(([k, v]) => [k.split(" ").filter((str,) => Number.isNaN(parseInt(str)) ).join(" "), v]);
+  
+  console.log( order )
   // Track nodes used
-  const visited_nodes = new Array();
+  const visited_nodes = [];
   for (const [selector, fields] of order) {
     let parent = null;
     for (const id of fields) {
