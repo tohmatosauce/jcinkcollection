@@ -157,7 +157,7 @@ function bc_better_ucp(args) {
   wrapper.append(...inner_structure_body.childNodes);
   const objected_order = { ["#" + wrapper_name]: field_order };
   const order = Object.entries(flatten_object(objected_order)).map(([k, v]) => [k.split(" ").filter((str,) => Number.isNaN(parseInt(str)) ).join(" "), v]);
-  
+ 
   // Track nodes used
   const visited_nodes = [];
   for (const [selector, fields] of order) {
@@ -175,7 +175,12 @@ function bc_better_ucp(args) {
   const get_shallowest_node = (list) => {
     const level_structure_map = get_level_map(wrapper).slice(1);
     for (const floor of level_structure_map) {
-      const floor_census = floor.filter(door => list.indexOf(door) > -1);
+      const floor_census = floor.filter(door => {
+        for (const el of list) {
+          if(el === door || door.contains(el)) return door; 
+        }
+        
+      });
       if (floor_census.length > 0) return floor_census.pop()
     }
     return false;
