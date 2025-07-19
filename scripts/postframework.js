@@ -36,6 +36,7 @@ function bc_post_framework(...args){
   return metadata;
  }
  const _submit_post = (evt, schema) => {
+  evt.preventDefault(); 
   document.REPLIER.Post.value = document.REPLIER.post_area.value;
   let validate = false;
   try { validate = ValidateForm(); } 
@@ -50,22 +51,25 @@ function bc_post_framework(...args){
     }
    }).filter(arr => arr.length > 0);
 
-    const sanitize = (val) => {
-      if(typeof val === 'string' || val instanceof String) {
-        const bb = val.match("/\[.*?].*?\[\/.*?]/")
-        if(bb.length > 0) alert("Warning: BBcode is dangerous to use in fields! Please don't use it.")
-        return false;
-      } else if(typeof val === 'object' && val !== null) {
-        Object.entries(val).forEach(([k, v]) => sanitize(v))
+    let sanity = true;
+    const sanitize = (obj = Object.fromEntries(data)) => {
+      if(typeof obj === 'string' || obj instanceof String) {
+        const bb = obj.match(/\[.*?].*?\[\/.*?]/m);
+        if(bb !== null) {
+          alert("Warning: BBcode is dangerous to use in fields! Please don't use it.");
+        	sanity = false;
+        }
+      } else if(typeof obj === 'object' && obj !== null) {
+        Object.values(obj).forEach(v => sanitize(v))
       } else {
         throw new Error("[post framework]: Something bad has happened with the sanitization code")
       }
     }
-    sanitize( Object.fromEntries(data) );
-
+    sanitize()
    const post = "[[mpost]]" + document.REPLIER.post_area.value + "[[/mpost]]"
    const json = Object.fromEntries(data);
    document.REPLIER.Post.value = "[[mdata]]" + JSON.stringify(json) + "[[/mdata]]" + post + "[[mhtml]]" + Array.from(document.querySelectorAll(".post_areas"), area => "[["+area.name.split("post_area_")[1]+"]]" + area.value + "[[/"+area.name.split("post_area_")[1]+"]]").join("") + "[[/mhtml]]"
+    sanity ? HTMLFormElement.prototype.submit.call(evt.srcElement) : evt.submitter.disabled = false
   }
  }
  const _clone_area = (e) => {
@@ -110,7 +114,7 @@ function bc_post_framework(...args){
     const parsed = _parse_post(qe, post_area);
     _extra_fields(post_area, schema.html, parsed.html)
     post_area.onchange = (evt) => {
-      const post = "[[post]]" + evt.target.value + "[[/post]]"
+      const post = "[[mpost]]" + evt.target.value + "[[/mpost]]"
       const json = parsed.meta_data
       qe.value = "[[mdata]]" + JSON.stringify(json) + "[[/mdata]]" + post + "[[mhtml]]" + Array.from(parsed.html, area => "[["+area.name.split("post_area_")[1]+"]]" + area.value + "[[/"+area.name.split("post_area_")[1]+"]]").join("") + "[[/mhtml]]"
     };
