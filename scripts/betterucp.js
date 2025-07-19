@@ -188,7 +188,7 @@ function bc_better_ucp(args) {
   const shallowest_node = get_shallowest_node(visited_nodes);
   const undeclared_fields = field_list.filter(f => flattened_order.indexOf(f) < 0);
   const dump_remaining = shallowest_node || wrapper.lastChild;
-  for (const id of undeclared_fields) {
+  for (const id of undeclared_fields.reverse()) {
     dump_remaining.after(...get_field_templates(field_templates, id));
   }
   // Add wrapper to document
