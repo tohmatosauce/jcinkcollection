@@ -203,11 +203,11 @@ function bc_post_style(...args) {
 
   const _add_menu = (stylemap, fieldmap, options, json) => {
     const fw = { 
-      meta_data: json?.meta_data || {
+      meta_data: {
         post_style: json?.meta_data?.post_style || "---", 
         post_style_options: json?.meta_data?.post_style_options || Object.fromEntries(Object.entries(fieldlist).map(([k,]) => [k,'']))
       },
-      html: json?.html || {
+      html: {
         tag_user: json?.html?.tag_user || ""
       },
       post: json?.post || ''
@@ -381,21 +381,20 @@ function bc_post_style(...args) {
       // validating stuff huzzuh
       if(!json) return false;
       const data = { 
-        meta_data: json?.meta_data || {
+        meta_data: {
           post_style: json?.meta_data?.post_style || "---", 
           post_style_options: json?.meta_data?.post_style_options || Object.fromEntries(Object.entries(fieldlist).map(([k,]) => [k,'']))
         },
-        html: json?.html || {
+        html: {
           tag_user: json?.html?.tag_user || ""
         },
         post: json?.post || ''
       }
-
-      const style = styles[data.meta_data.post_style]
-      const [selector = "", _, callback = ()=>{}] = (json.meta_data.post_style === "---")  ? ['', '', ()=>{}] : style
-      json.meta_data.post_style_options = Object.fromEntries(Object.entries(json.meta_data.post_style_options).map(([k,v]) => [k,v.replaceAll("&lt;","<").replaceAll("&gt;",">").replaceAll("&amp;","&")]))
-      const post_options_exists = Object.fromEntries(Object.entries(json.meta_data.post_style_options).map(([k,v]) => [k+" exists", v.trim() ? 1 : 0]));
-      json.meta_data.post_style_options = {...post_options_exists, ...json.meta_data.post_style_options};
+      
+      const [selector = "", _, callback = ()=>{}] = (data.meta_data.post_style === "---") ? ['', '', ()=>{}] : styles[data.meta_data.post_style]
+      data.meta_data.post_style_options = Object.fromEntries(Object.entries(data.meta_data.post_style_options).map(([k,v]) => [k,v.replaceAll("&lt;","<").replaceAll("&gt;",">").replaceAll("&amp;","&")]))
+      const post_options_exists = Object.fromEntries(Object.entries(data.meta_data.post_style_options).map(([k,v]) => [k+" exists", v.trim() ? 1 : 0]));
+      data.meta_data.post_style_options = {...post_options_exists, ...data.meta_data.post_style_options};
       const template = _parse_template(selector, data, options)
       e.innerHTML = template
       callback(e, data)
