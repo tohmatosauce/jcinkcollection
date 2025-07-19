@@ -8,8 +8,8 @@ function bc_post_framework(...args){
    const m = {
      "meta_begin": e.innerHTML.match(/\[\[mdata\]\]/im),
      "meta_end": e.innerHTML.match(/\[\[\/mdata\]\]/im),
-     "post_begin": e.innerHTML.match(/\[\[post\]\]/im),
-     "post_end": e.innerHTML.match(/\[\[\/post\]\]/im),
+     "post_begin": e.innerHTML.match(/\[\[mpost\]\]/im),
+     "post_end": e.innerHTML.match(/\[\[\/mpost\]\]/im),
      "html_begin": e.innerHTML.match(/\[\[mhtml\]\]/im),
      "html_end": e.innerHTML.match(/\[\[\/mhtml\]\]/im)
    }
@@ -18,13 +18,15 @@ function bc_post_framework(...args){
    const post = (m.post_begin && m.post_end) ? e.innerHTML.slice(m.post_begin.index + m.post_begin[0].length, m.post_end.index) : false
    const html = (m.html_begin && m.html_end) ? e.innerHTML.slice(m.html_begin.index + m.html_begin[0].length, m.html_end.index) : false
    const html_finder = html ? [...html.matchAll(/\[\[(.*?)]](.*?)\[\[\/.*?]]/gim)] : ''
-
+   
    const json = {
      	post: post ? post : e.innerHTML,
 	    html: html ? Object.fromEntries(html_finder.map(f => [f[1], f[2]])) : false,
 	    meta_data: mdata ? JSON.parse(mdata) : false
    }
+   
    repl.innerHTML = json["post"]
+   
    return (!mdata && !post && !html) ? false : json
  }
  const _load_post = (e, callback) => {
@@ -38,7 +40,7 @@ function bc_post_framework(...args){
   let validate = false;
   try { validate = ValidateForm(); } 
   catch { validate = true; }
-  if((!document.REPLIER.TopicTitle || document.REPLIER.TopicTitle.value.length >= 2) && validate) {
+  if((!document.REPLIER.TopicTitle || document.REPLIER.TopicTitle.value.length >= 2) && validate) {    
    const data = Object.entries(schema).map(([k,v])=> {
     try {
      const name = k, value = v();
@@ -47,8 +49,22 @@ function bc_post_framework(...args){
      return []
     }
    }).filter(arr => arr.length > 0);
-   const post = "[[post]]" + document.REPLIER.post_area.value + "[[/post]]"
-   const json = Object.fromEntries(data)
+
+    const sanitize = (val) => {
+      if(typeof val === 'string' || val instanceof String) {
+        const bb = val.match("/\[.*?].*?\[\/.*?]/")
+        if(bb.length > 0) alert("Warning: BBcode is dangerous to use in fields! Please don't use it.")
+        return false;
+      } else if(typeof val === 'object' && val !== null) {
+        Object.entries(val).forEach(([k, v]) => sanitize(v))
+      } else {
+        throw new Error("[post framework]: Something bad has happened with the sanitization code")
+      }
+    }
+    sanitize( Object.fromEntries(data) );
+
+   const post = "[[mpost]]" + document.REPLIER.post_area.value + "[[/mpost]]"
+   const json = Object.fromEntries(data);
    document.REPLIER.Post.value = "[[mdata]]" + JSON.stringify(json) + "[[/mdata]]" + post + "[[mhtml]]" + Array.from(document.querySelectorAll(".post_areas"), area => "[["+area.name.split("post_area_")[1]+"]]" + area.value + "[[/"+area.name.split("post_area_")[1]+"]]").join("") + "[[/mhtml]]"
   }
  }
@@ -69,7 +85,7 @@ function bc_post_framework(...args){
  }
  
  let [post, schema, callback] = args;
- 
+  
  // topic view
  const posts = document.querySelectorAll(post);
  posts.forEach(e => {
@@ -110,11 +126,19 @@ function bc_post_framework(...args){
   document.REPLIER.setAttribute("onsubmit", "")
  const default_mdata = {
   "forum_id": () => document.REPLIER.f.value,
+  "author_name": () => {
+    if(!document.REPLIER?.post_as && !document.REPLIER?.post_as_username) return document.getElementById("logged-in-as").innerText;
+     const index = document.REPLIER.post_as.options.selectedIndex;
+     if(!document.REPLIER.post_as) { return document.REPLIER.post_as_username.value }
+     else if(index===0) { return document.getElementById("logged-in-as").innerText }
+     else { return document.REPLIER.post_as.options[index].innerText.split("»")[1].trim(); }
+  },
   "author_id": () => {
-   const index = document.REPLIER.post_as.options.selectedIndex;
-   if(!document.REPLIER.post_as) { return document.REPLIER.post_as_username.value }
-   else if(index===0) { return document.getElementById("logged-in-as").innerText }
-   else { return document.REPLIER.post_as.options[index].innerText.split("»")[1].trim(); }
+    if(!document.REPLIER?.post_as && !document.REPLIER?.post_as_username) return document.getElementById("logged-in-as").href.split("=")[1];
+     const index = document.REPLIER.post_as.options.selectedIndex;
+     if(!document.REPLIER.post_as) { return -1 }
+     else if(index===0) { return document.getElementById("logged-in-as").href.split("=")[1] }
+     else { return index }
   }
  }
  const normal_schema = {...default_mdata, ...schema.text};

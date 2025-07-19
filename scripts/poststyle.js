@@ -1,4 +1,3 @@
-// https://files.jcink.net/html/jbfcode.js
 // has to be hijacked b/c we killed the Post whoops
 document.addEventListener("DOMContentLoaded", () => {
 const tag = document.createElement("script");
@@ -202,7 +201,19 @@ function bc_post_style(...args) {
   const [post, styles, fieldlist, options] = args
   if (!document.querySelector(post) && !document.REPLIER?.Post) return false
 
-  const _add_menu = (stylemap, fieldmap, options, fw) => {
+  const _add_menu = (stylemap, fieldmap, options, json) => {
+    const fw = { 
+      meta_data: json?.meta_data || {
+        post_style: json?.meta_data?.post_style || "---", 
+        post_style_options: json?.meta_data?.post_style_options || Object.fromEntries(Object.entries(fieldlist).map(([k,]) => [k,'']))
+      },
+      html: json?.html || {
+        tag_user: json?.html?.tag_user || "",
+        "tags exists": json?.html?.tag_user ? 1 : 0,
+      },
+      post: json?.post || ''
+    }
+
     document.getElementById("post-options").insertAdjacentHTML('afterend', "<tr id='post-style-header'><td>Post Settings</td></tr>")
     
     const menu = document.createElement("tr")
@@ -218,38 +229,37 @@ function bc_post_style(...args) {
 	      tagmenu.id = "tag-user-menu";
       	(async () => {
 	        const usertags = await options.usertag[1]();
-	        const users = new Map(usertags.map((user, i) => [i, user]))
-	        tagmenu.innerHTML = "<select name='tag_user' multiple hidden disabled>" + Array.from(users).map(([i, user]) => "<option value='" + i + "'>" + user + "</option>").join("") + "</select><td class='pformleft'>Tag user(s)</td><td class='pformright'><div class='tags_preview'></div><input type='text' name='tag_user_search' placeholder='Search user(s)'/><select name='tag_user_view' style='display:none;overflow:auto' multiple></select></td>"
+	        tagmenu.innerHTML = "<select name='tag_user' multiple hidden disabled>" + usertags.map(([id, user]) => "<option value='" + id + "'>" + user + "</option>").join("") + "</select><td class='pformleft'>Tag user(s)</td><td class='pformright'><div class='tags_preview'></div><input type='text' name='tag_user_search' placeholder='Search user(s)'/><select name='tag_user_view' style='display:none;overflow:auto' multiple></select></td>"
 	        document.REPLIER.tag_user_search.addEventListener("input", (evt) => {
 	          const searchkey = evt.target.value;
-	          const matched = Array.from(users).filter(([, x]) => searchkey.length > 0 && Array.from(document.REPLIER.tag_user.selectedOptions, o => o.innerText).indexOf(x) === -1 && x.toLowerCase().includes(searchkey.toLowerCase()));
+	          const matched = usertags.filter(([, x]) => searchkey.length > 0 && Array.from(document.REPLIER.tag_user.selectedOptions, o => o.innerText).indexOf(x) === -1 && x.toLowerCase().includes(searchkey.toLowerCase()));
             const add_tag = (x) => {
-            		if (x.getAttribute("has-event") === "true") return false
-              	x.setAttribute("has-event", "true")
-	              // add to tag view
-	              const id = x.value
-	              document.REPLIER.tag_user.options[id].selected = true
-	              const tag = document.createElement("tag")
-	              tagmenu.querySelector(".tags_preview").append(tag)
-	              tag.innerText = x.innerText
-	              // check if usertag is already loaded in the textarea itself and add if not
-	              const tag_finder = [...document.REPLIER.post_area_tag_user.value.matchAll(/\[user=.*?](.*?)\[\/user]/gim)].map(user => user[1])
-	              if(tag_finder.indexOf(x.innerText) < 0) document.REPLIER.post_area_tag_user.value += "@[" + x.innerText + "]"
-	              // remove tag
-	              tag.addEventListener("click", () => {
-	                document.REPLIER.tag_user.options[id].selected = false
-                  x.selected = false
-	                tag.remove()
-	                const tag_matcher = [...document.REPLIER.post_area_tag_user.value.matchAll(/\[user=.*?](.*?)\[\/user]|@\[(.*?)]/gim)].filter(u => u[2] === x.innerText || u[1] === x.innerText)
-	                const tag_remover = tag_matcher.map(u => [u[0], u[2] ?? u[1]])
-	                if (tag_remover[0][1] === x.innerText) document.REPLIER.post_area_tag_user.value = document.REPLIER.post_area_tag_user.value.replace(tag_remover[0][0], '')
-	                x.style.display = "block"
-                  x.setAttribute("has-event", "false")
-                  document.REPLIER.tag_user_view.size = (document.REPLIER.tag_user_view.size + 1) < 4 ? (document.REPLIER.tag_user_view.size + 1) : 4
-	              })
-	              x.style.display = "none"
-	              // document.REPLIER.tag_user_search.value = ""
-	              document.REPLIER.tag_user_search.focus();
+              if (x.getAttribute("has-event") === "true") return false
+              x.setAttribute("has-event", "true")
+              // add to tag view
+              const id = x.value
+              document.REPLIER.tag_user.options[id].selected = true
+              const tag = document.createElement("tag")
+              tagmenu.querySelector(".tags_preview").append(tag)
+              tag.innerText = x.innerText
+              // check if usertag is already loaded in the textarea itself and add if not
+              const tag_finder = [...document.REPLIER.post_area_tag_user.value.matchAll(/\[user=.*?](.*?)\[\/user]/gim)].map(user => user[1])
+              if(tag_finder.indexOf(x.innerText) < 0) document.REPLIER.post_area_tag_user.value += "@[" + x.innerText + "]"
+              // remove tag
+              tag.addEventListener("click", () => {
+                document.REPLIER.tag_user.options[id].selected = false
+                x.selected = false
+                tag.remove()
+                const tag_matcher = [...document.REPLIER.post_area_tag_user.value.matchAll(/\[user=.*?](.*?)\[\/user]|@\[(.*?)]/gim)].filter(u => u[2] === x.innerText || u[1] === x.innerText)
+                const tag_remover = tag_matcher.map(u => [u[0], u[2] ?? u[1]])
+                if (tag_remover[0][1] === x.innerText) document.REPLIER.post_area_tag_user.value = document.REPLIER.post_area_tag_user.value.replace(tag_remover[0][0], '')
+                x.style.display = "block"
+                x.setAttribute("has-event", "false")
+                document.REPLIER.tag_user_view.size = (document.REPLIER.tag_user_view.size + 1) < 4 ? (document.REPLIER.tag_user_view.size + 1) : 4
+              })
+              x.style.display = "none"
+              // document.REPLIER.tag_user_search.value = ""
+              document.REPLIER.tag_user_search.focus();
             }
 	          if (matched.length > 0) {
 	            document.REPLIER.tag_user_view.style.display = 'initial'
@@ -266,24 +276,24 @@ function bc_post_style(...args) {
 	            document.REPLIER.tag_user_view.style.display = 'none'
 	          }
 	        })
-          if(fw.html && fw.html.tag_user) {
-          const tag_finder = [...fw.html.tag_user.matchAll(/\[user=.*?](.*?)\[\/user]/gim)]
-        const tag_map = new Map(Array.from(document.REPLIER.tag_user.options, option => [option.innerText, option.value]))
-        tag_finder.forEach(user => {
-          const id = tag_map.get(user[1])
-          document.REPLIER.tag_user.options[id].selected = true
-          const tag = document.createElement("tag")
-          document.querySelector(".tags_preview").append(tag)
-          tag.innerText = user[1]
-          // remove tag
-          tag.addEventListener("click", () => {
-            document.REPLIER.tag_user.options[id].selected = false
-            tag.remove()
-            const tag_remover = [...document.REPLIER.post_area_tag_user.value.matchAll(/\[user=.*?](.*?)\[\/user]/gim)].filter(u => u[1] === user[1])
-            if (tag_remover.length > 0 && tag_remover[0][1] === user[1]) document.REPLIER.post_area_tag_user.value = document.REPLIER.post_area_tag_user.value.replace(tag_remover[0][0], '')
-          })
-        })
-        document.REPLIER.tag_user.selectedOptions
+          if(json.html && json.html.tag_user) {
+            const tag_finder = [...fw.html.tag_user.matchAll(/\d*,/gim)].map(id => id[0].slice(0,-1))
+            const tag_map = new Map(usertags)
+            tag_finder.forEach(id => {
+              const name = tag_map.get(id)
+              document.REPLIER.tag_user.options[id].selected = true
+              const tag = document.createElement("tag")
+              document.querySelector(".tags_preview").append(tag)
+              tag.innerText = name
+              // remove tag
+              tag.addEventListener("click", () => {
+                document.REPLIER.tag_user.options[id].selected = false
+                tag.remove()
+                const tag_remover = [...document.REPLIER.post_area_tag_user.value.matchAll(/\[user=(\d*).*?].*?\[\/user]/gim)].filter(u => u[1] === id)
+                if (tag_remover.length > 0) document.REPLIER.post_area_tag_user.value = document.REPLIER.post_area_tag_user.value.replace(tag_remover[0][0], '')
+              })
+            })
+            document.REPLIER.tag_user.selectedOptions
           }
       })()
     }
@@ -312,7 +322,7 @@ function bc_post_style(...args) {
     
     /* loading in data to the menu */
     document.querySelectorAll(".post-style-options").forEach(tr => tr.setAttribute("data-visible", "false"))
-    if (!document.REPLIER.Post.innerHTML.trim() || !fw) return false;
+    if (!document.REPLIER.Post.innerHTML.trim() || !json) return false;
     const metadata = fw.meta_data
     
     document.REPLIER.post_style.value = metadata.post_style || "---"
@@ -324,7 +334,7 @@ function bc_post_style(...args) {
     const style_options = document.querySelectorAll(".post-style-options")
     style_options.forEach(style => {
       const name = style.dataset.id
-      const value = metadata.post_style_options[name]
+      const value = metadata.post_style_options[name].replaceAll("&lt;","<").replaceAll("&gt;",">").replaceAll("&amp;","&")
       style.querySelector(".pformright").children[0].value = value
     })
     
@@ -339,11 +349,9 @@ function bc_post_style(...args) {
   }
 
   const _parse_template = (template, data, options) => {
-    data.meta_data ??= { post_style: "---", post_style_options: {} }
     const key_val = {
       post: data.post,
-      tags: data?.html?.tag_user || "",
-      "tags exists": data?.html?.tag_user ? 1 : 0,
+      ...data.html,
       ...data.meta_data.post_style_options
     }
     const template_class = options.templates || "poststyle_templates"
@@ -359,27 +367,39 @@ function bc_post_style(...args) {
   const framework = bc_post_framework(post, {
       text: {
         "post_style": () => document.REPLIER.post_style.selectedOptions[0].innerText,
-        "post_style_options": () => Object.fromEntries(Array.from(document.querySelectorAll(".post-style-options"), x => [ x.dataset.id, x.querySelector(".pformright").children[0].value ]))
+        "post_style_options": () => Object.fromEntries(Array.from(document.querySelectorAll(".post-style-options"), x => [ x.dataset.id, x.querySelector(".pformright").children[0].value]))
       }, 
       html: {
         "tag_user": () => Array.from(document.REPLIER.tag_user.selectedOptions, x => "@[" + x.innerHTML.trim() + "]")
       }
     }, function (e, json) {
-			if(!json) return false;
-      const metadata = json?.meta_data ?? { post_style: "---", post_style_options: {} }
-      metadata.post_style = metadata.post_style || "---"
-      const style = styles[metadata.post_style]
-      const [selector = "", _, callback = ()=>{}] = (metadata.post_style === "---")  ? ['', '', ()=>{}] : style
-      const post_options_exists = Object.entries(metadata.post_style_options).map(([k,v]) => [k+" exists", v.trim() ? 1 : 0]);
-      metadata.post_style_options = Object.fromEntries(post_options_exists.concat( Object.entries(metadata.post_style_options) ));
-      const template = _parse_template(selector, json, options)
+      // validating stuff huzzuh
+      if(!json) return false;
+      const data = { 
+        meta_data: json?.meta_data || {
+          post_style: json?.meta_data?.post_style || "---", 
+          post_style_options: json?.meta_data?.post_style_options || Object.fromEntries(Object.entries(fieldlist).map(([k,]) => [k,'']))
+        },
+        html: json?.html || {
+          tag_user: json?.html?.tag_user || "",
+          "tags exists": json?.html?.tag_user ? 1 : 0,
+        },
+        post: json?.post || ''
+      }
+
+      const style = styles[data.meta_data.post_style]
+      const [selector = "", _, callback = ()=>{}] = (json.meta_data.post_style === "---")  ? ['', '', ()=>{}] : style
+      json.meta_data.post_style_options = Object.fromEntries(Object.entries(json.meta_data.post_style_options).map(([k,v]) => [k,v.replaceAll("&lt;","<").replaceAll("&gt;",">").replaceAll("&amp;","&")]))
+      const post_options_exists = Object.fromEntries(Object.entries(json.meta_data.post_style_options).map(([k,v]) => [k+" exists", v.trim() ? 1 : 0]));
+      json.meta_data.post_style_options = {...post_options_exists, ...json.meta_data.post_style_options};
+      const template = _parse_template(selector, data, options)
       e.innerHTML = template
-      callback(e, json)
+      callback(e, data)
     }
   );
 
   // post view
-  if (!document.REPLIER.Post || document.REPLIER.qrc) return false
+  if (!document?.REPLIER?.Post || document?.REPLIER?.qrc) return false
   _add_menu(stylemap, fieldmap, options, framework)
   // _load_menu(framework, options)
   document.querySelectorAll(".codebuttons[onclick*='simpletag']").forEach(btn => btn.setAttribute('onclick', btn.getAttribute('onclick').replace("simpletag","ins_tag")))
@@ -389,5 +409,5 @@ function bc_post_style(...args) {
 		const tag = bbcodes[i].value.trim()
     bbcodes[i].name = tag
 		bbcodes[i].setAttribute("onclick", `ins_tag("${tag}")`)
-  }
+	}
 }
