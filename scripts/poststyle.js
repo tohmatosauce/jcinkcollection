@@ -208,8 +208,7 @@ function bc_post_style(...args) {
         post_style_options: json?.meta_data?.post_style_options || Object.fromEntries(Object.entries(fieldlist).map(([k,]) => [k,'']))
       },
       html: json?.html || {
-        tag_user: json?.html?.tag_user || "",
-        "tags exists": json?.html?.tag_user ? 1 : 0,
+        tag_user: json?.html?.tag_user || ""
       },
       post: json?.post || ''
     }
@@ -223,81 +222,86 @@ function bc_post_style(...args) {
     menu.id = "post-style-menu"
     menu.innerHTML = "<td class='pformleft'>Post Style</td><td class='pformright'></td>"
 
+    /* setting up user tags + loading any existing user tags in */
     if (options.usertag[0]) {      
-	      const tagmenu = document.createElement("tr")
-	      menu.insertAdjacentElement('beforebegin', tagmenu);
-	      tagmenu.id = "tag-user-menu";
-      	(async () => {
-	        const usertags = await options.usertag[1]();
-	        tagmenu.innerHTML = "<select name='tag_user' multiple hidden disabled>" + usertags.map(([id, user]) => "<option value='" + id + "'>" + user + "</option>").join("") + "</select><td class='pformleft'>Tag user(s)</td><td class='pformright'><div class='tags_preview'></div><input type='text' name='tag_user_search' placeholder='Search user(s)'/><select name='tag_user_view' style='display:none;overflow:auto' multiple></select></td>"
-	        document.REPLIER.tag_user_search.addEventListener("input", (evt) => {
-	          const searchkey = evt.target.value;
-	          const matched = usertags.filter(([, x]) => searchkey.length > 0 && Array.from(document.REPLIER.tag_user.selectedOptions, o => o.innerText).indexOf(x) === -1 && x.toLowerCase().includes(searchkey.toLowerCase()));
-            const add_tag = (x) => {
-              if (x.getAttribute("has-event") === "true") return false
-              x.setAttribute("has-event", "true")
-              // add to tag view
-              const id = x.value
-              document.REPLIER.tag_user.options[id].selected = true
-              const tag = document.createElement("tag")
-              tagmenu.querySelector(".tags_preview").append(tag)
-              tag.innerText = x.innerText
-              // check if usertag is already loaded in the textarea itself and add if not
-              const tag_finder = [...document.REPLIER.post_area_tag_user.value.matchAll(/\[user=.*?](.*?)\[\/user]/gim)].map(user => user[1])
-              if(tag_finder.indexOf(x.innerText) < 0) document.REPLIER.post_area_tag_user.value += "@[" + x.innerText + "]"
-              // remove tag
-              tag.addEventListener("click", () => {
-                document.REPLIER.tag_user.options[id].selected = false
-                x.selected = false
-                tag.remove()
-                const tag_matcher = [...document.REPLIER.post_area_tag_user.value.matchAll(/\[user=.*?](.*?)\[\/user]|@\[(.*?)]/gim)].filter(u => u[2] === x.innerText || u[1] === x.innerText)
-                const tag_remover = tag_matcher.map(u => [u[0], u[2] ?? u[1]])
-                if (tag_remover[0][1] === x.innerText) document.REPLIER.post_area_tag_user.value = document.REPLIER.post_area_tag_user.value.replace(tag_remover[0][0], '')
-                x.style.display = "block"
-                x.setAttribute("has-event", "false")
-                document.REPLIER.tag_user_view.size = (document.REPLIER.tag_user_view.size + 1) < 4 ? (document.REPLIER.tag_user_view.size + 1) : 4
-              })
-              x.style.display = "none"
-              // document.REPLIER.tag_user_search.value = ""
-              document.REPLIER.tag_user_search.focus();
-            }
-	          if (matched.length > 0) {
-	            document.REPLIER.tag_user_view.style.display = 'initial'
-	            document.REPLIER.tag_user_view.innerHTML = ''
-	            document.REPLIER.tag_user_view.size = matched.length < 4 ? matched.length : 4
-	            document.REPLIER.tag_user_view.insertAdjacentHTML('beforeend', matched.map(([i, user]) => "<option value='" + i + "'>" + user + "</option>").join(""))
-	            document.REPLIER.tag_user_view.addEventListener("change", ()=>{
-	              Array.from(document.REPLIER.tag_user_view.selectedOptions).forEach(x => add_tag(x))
-                const size = document.REPLIER.tag_user_view.options.length - document.REPLIER.tag_user_view.querySelectorAll("[has-event='true']").length
-	              document.REPLIER.tag_user_view.size = size < 4 ? size : 4
-	              if (document.REPLIER.tag_user_view.size < 1) document.REPLIER.tag_user_view.style.display = 'none'
-	            })
-	          } else {
-	            document.REPLIER.tag_user_view.style.display = 'none'
-	          }
-	        })
-          if(json.html && json.html.tag_user) {
-            const tag_finder = [...fw.html.tag_user.matchAll(/\d*,/gim)].map(id => id[0].slice(0,-1))
-            const tag_map = new Map(usertags)
-            tag_finder.forEach(id => {
-              const name = tag_map.get(id)
-              document.REPLIER.tag_user.options[id].selected = true
-              const tag = document.createElement("tag")
-              document.querySelector(".tags_preview").append(tag)
-              tag.innerText = name
-              // remove tag
-              tag.addEventListener("click", () => {
-                document.REPLIER.tag_user.options[id].selected = false
-                tag.remove()
-                const tag_remover = [...document.REPLIER.post_area_tag_user.value.matchAll(/\[user=(\d*).*?].*?\[\/user]/gim)].filter(u => u[1] === id)
-                if (tag_remover.length > 0) document.REPLIER.post_area_tag_user.value = document.REPLIER.post_area_tag_user.value.replace(tag_remover[0][0], '')
-              })
-            })
-            document.REPLIER.tag_user.selectedOptions
-          }
+      const remove_tag = (tag, id, x) => {
+        document.REPLIER.tag_user.options[id].selected = false
+        x.selected = false
+        tag.remove()
+        const tag_matcher = [...document.REPLIER.post_area_tag_user.value.matchAll(/\[user=.*?](.*?)\[\/user]|@\[(.*?)]/gim)].filter(u => u[2] === x.innerText || u[1] === x.innerText)
+        const tag_remover = tag_matcher.map(u => [u[0], u[2] ?? u[1]])
+        if (tag_remover[0][1] === x.innerText) document.REPLIER.post_area_tag_user.value = document.REPLIER.post_area_tag_user.value.replace(tag_remover[0][0], '')
+        x.style.display = "block"
+        x.setAttribute("has-event", "false")
+        document.REPLIER.tag_user_view.size = (document.REPLIER.tag_user_view.size + 1) < 4 ? (document.REPLIER.tag_user_view.size + 1) : 4
+      }
+      const add_tag = (x) => {
+        if (x.getAttribute("has-event") === "true") return false
+        x.setAttribute("has-event", "true")
+        // add to tag view
+        const id = x.value
+        document.REPLIER.tag_user.options[id].selected = true
+        const tag = document.createElement("tag")
+        tagmenu.querySelector(".tags_preview").append(tag)
+        tag.innerText = x.innerText
+        // check if usertag is already loaded in the textarea itself and add if not
+        const tag_finder = [...document.REPLIER.post_area_tag_user.value.matchAll(/\[user=.*?](.*?)\[\/user]/gim)].map(user => user[1])
+        if(tag_finder.indexOf(x.innerText) < 0) document.REPLIER.post_area_tag_user.value += "@[" + x.innerText + "]"
+        // remove tag
+        tag.addEventListener("click", remove_tag(tag, id, x))
+        x.style.display = "none"
+        // document.REPLIER.tag_user_search.value = ""
+        document.REPLIER.tag_user_search.focus();
+      }
+
+      const tagmenu = document.createElement("tr")
+      menu.insertAdjacentElement('beforebegin', tagmenu);
+      tagmenu.id = "tag-user-menu";
+
+      const search_tag = (evt, usertags) => {
+        const searchkey = evt.target.value;
+        const matched = usertags.filter(([, x]) => searchkey.length > 0 && Array.from(document.REPLIER.tag_user.selectedOptions, o => o.innerText).indexOf(x) === -1 && x.toLowerCase().includes(searchkey.toLowerCase()));
+        
+        if (matched.length > 0) {
+          document.REPLIER.tag_user_view.style.display = 'initial'
+          document.REPLIER.tag_user_view.innerHTML = ''
+          document.REPLIER.tag_user_view.size = matched.length < 4 ? matched.length : 4
+          document.REPLIER.tag_user_view.insertAdjacentHTML('beforeend', matched.map(([i, user]) => "<option value='" + i + "'>" + user + "</option>").join(""))
+          document.REPLIER.tag_user_view.addEventListener("change", ()=>{
+            Array.from(document.REPLIER.tag_user_view.selectedOptions).forEach(x => add_tag(x))
+            const size = document.REPLIER.tag_user_view.options.length - document.REPLIER.tag_user_view.querySelectorAll("[has-event='true']").length
+            document.REPLIER.tag_user_view.size = size < 4 ? size : 4
+            if (document.REPLIER.tag_user_view.size < 1) document.REPLIER.tag_user_view.style.display = 'none'
+          })
+        } else {
+          document.REPLIER.tag_user_view.style.display = 'none'
+        }
+      }
+      (async () => {
+        const usertags = await options.usertag[1]();
+        tagmenu.innerHTML = "<select name='tag_user' multiple hidden disabled>" + usertags.map(([id, user]) => "<option value='" + id + "'>" + user + "</option>").join("") + "</select><td class='pformleft'>Tag user(s)</td><td class='pformright'><div class='tags_preview'></div><input type='text' name='tag_user_search' placeholder='Search user(s)'/><select name='tag_user_view' style='display:none;overflow:auto' multiple></select></td>"
+        document.REPLIER.tag_user_search.addEventListener("input", (evt) => search_tag(evt, usertags))
+        if(!json.html || !json.html.tag_user) return false
+        const tag_finder = [...fw.html.tag_user.matchAll(/\d*,/gim)].map(id => id[0].slice(0,-1))
+        const tag_map = new Map(usertags)
+        tag_finder.forEach(id => {
+          const name = tag_map.get(id)
+          document.REPLIER.tag_user.options[id].selected = true
+          const tag = document.createElement("tag")
+          document.querySelector(".tags_preview").append(tag)
+          tag.innerText = name
+          // remove tag
+          tag.addEventListener("click", () => {
+            document.REPLIER.tag_user.options[id].selected = false
+            tag.remove()
+            const tag_remover = [...document.REPLIER.post_area_tag_user.value.matchAll(/\[user=(\d*).*?].*?\[\/user]/gim)].filter(u => u[1] === id)
+            if (tag_remover.length > 0) document.REPLIER.post_area_tag_user.value = document.REPLIER.post_area_tag_user.value.replace(tag_remover[0][0], '')
+          })
+        })
       })()
     }
 
+    /* adds field menus (not loaded any pre-existing data yet) */
     const fields = Array.from(fieldmap).map(([k,v]) => `<td class='post-style-options' data-value='${v.value}' data-id='${k}'><div class='pformleft'>${v.label}</div><div class='pformright'>${v.html}</div></td>`)
     menu.insertAdjacentHTML('afterend', '<tr id="options-header"><td>Template Options</td></tr><tr id="post-style-options">' + fields.join("") + '</tr>')
 
@@ -350,9 +354,10 @@ function bc_post_style(...args) {
 
   const _parse_template = (template, data, options) => {
     const key_val = {
-      post: data.post,
+      post: data.post, 
+      "tags exists": json?.html?.tag_user ? 1 : 0, 
       ...data.html,
-      ...data.meta_data.post_style_options
+      ...data.meta_data.post_style_options,
     }
     const template_class = options.templates || "poststyle_templates"
     const template_content = data.meta_data.post_style === "---" ? ("<post>${post}"+ (data.html.tag_user?"<br><br>${tags}":"") + "</post>") : Array.from(document.querySelector("template"+template+"."+template_class).content.childNodes).reduce((acc, curr) => acc += curr.outerHTML || curr.nodeValue || "","")
@@ -381,8 +386,7 @@ function bc_post_style(...args) {
           post_style_options: json?.meta_data?.post_style_options || Object.fromEntries(Object.entries(fieldlist).map(([k,]) => [k,'']))
         },
         html: json?.html || {
-          tag_user: json?.html?.tag_user || "",
-          "tags exists": json?.html?.tag_user ? 1 : 0,
+          tag_user: json?.html?.tag_user || ""
         },
         post: json?.post || ''
       }
