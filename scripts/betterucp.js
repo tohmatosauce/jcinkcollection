@@ -77,8 +77,9 @@ function bc_better_ucp(args) {
 
   const get_field_templates = (table, id) => {
     const template = table.get(id) || table.get(0);
-    const html_template = new DOMParser().parseFromString(parse_template(id, template), 'text/html')
-    return html_template.getRootNode().body.childNodes
+    const range = document.createRange();
+    const html_template = range.createContextualFragment( parse_template(id, template) );
+    return html_template.getRootNode().childNodes
   }
 
   // for a cleaner main()... just indexes the UCP for the full field list, as well as required and optional fields.
