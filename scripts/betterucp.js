@@ -167,7 +167,7 @@ function bc_better_ucp(args) {
       for (const p of parent_possibilities)
         if (visited_nodes.indexOf(p) === -1) parent = p;
       if (!parent) throw new Error(`${selector} doesn't exist in your given inner structure. Accidental duplicate selectors listed in field_order is likely the culprit.`);
-      parent.appendChild(...get_field_templates(field_templates, id));
+      parent.append(...get_field_templates(field_templates, id));
     }
     visited_nodes.push(parent)
   }
