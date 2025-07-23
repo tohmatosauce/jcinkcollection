@@ -27,7 +27,7 @@ function bc_better_ucp(args) {
         submit: document.querySelector("#ucpcontent form .forminput[type='submit']").closest("td").innerHTML
       }
     const template_content = Array.from(document.querySelector(template).content.childNodes).reduce((acc, curr) => acc += curr.outerHTML || curr.nodeValue || "", "");
-    const template_content_replaced = template_content.replaceAll(/(\$\{)(.*?)(\})/g, (m, _, p2) => key_val[p2] ?? p2);
+    const template_content_replaced = template_content.replaceAll(/(\$\{)(.*?)(\})/g, (m, _, p2) => key_val[p2] ?? m);
     return template_content_replaced;
   }
 
