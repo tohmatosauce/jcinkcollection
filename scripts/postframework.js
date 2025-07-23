@@ -18,12 +18,26 @@ function bc_post_framework(...args){
    const post = (m.post_begin && m.post_end) ? e.innerHTML.slice(m.post_begin.index + m.post_begin[0].length, m.post_end.index) : false
    const html = (m.html_begin && m.html_end) ? e.innerHTML.slice(m.html_begin.index + m.html_begin[0].length, m.html_end.index) : false
    const html_finder = html ? [...html.matchAll(/\[\[(.*?)]](.*?)\[\[\/.*?]]/gim)] : ''
+
+    const desanitize = (obj, key, prev) => {
+      if(typeof obj === 'string' || obj instanceof String) {
+        prev[key] = obj.replaceAll("&lt;","<").replaceAll("&gt;",">").replaceAll("&amp;","&")
+        return;
+      } else if(typeof obj === 'object' && obj !== null) {
+        Object.entries(obj).forEach(([k,v]) => desanitize(v, k, obj))
+      }
+      return obj
+    }
    
    const json = {
      	post: post ? post : e.innerHTML,
 	    html: html ? Object.fromEntries(html_finder.map(f => [f[1], f[2]])) : false,
-	    meta_data: mdata ? JSON.parse(mdata) : false
+	    meta_data: mdata ? desanitize( JSON.parse(mdata) ) : false
    }
+
+
+   
+   // .replaceAll("&lt;","<").replaceAll("&gt;",">").replaceAll("&amp;","&")
    
    repl.innerHTML = json["post"]
    
@@ -36,12 +50,12 @@ function bc_post_framework(...args){
   return metadata;
  }
  const _submit_post = (evt, schema) => {
-  evt.preventDefault(); 
   document.REPLIER.Post.value = document.REPLIER.post_area.value;
   let validate = false;
   try { validate = ValidateForm(); } 
   catch { validate = true; }
   if((!document.REPLIER.TopicTitle || document.REPLIER.TopicTitle.value.length >= 2) && validate) {    
+   evt.preventDefault(); 
    const data = Object.entries(schema).map(([k,v])=> {
     try {
      const name = k, value = v();
@@ -56,20 +70,23 @@ function bc_post_framework(...args){
       if(typeof obj === 'string' || obj instanceof String) {
         const bb = obj.match(/\[.*?].*?\[\/.*?]/m);
         if(bb !== null) {
-          alert("Warning: BBcode is dangerous to use in fields! Please don't use it.");
+          alert("Warning: BBcode is dangerous to use when parsing JSON! Please don't use it. Use HTML instead.");
         	sanity = false;
         }
       } else if(typeof obj === 'object' && obj !== null) {
         Object.values(obj).forEach(v => sanitize(v))
-      } else {
-        throw new Error("[post framework]: Something bad has happened with the sanitization code")
       }
     }
     sanitize()
    const post = "[[mpost]]" + document.REPLIER.post_area.value + "[[/mpost]]"
    const json = Object.fromEntries(data);
    document.REPLIER.Post.value = "[[mdata]]" + JSON.stringify(json) + "[[/mdata]]" + post + "[[mhtml]]" + Array.from(document.querySelectorAll(".post_areas"), area => "[["+area.name.split("post_area_")[1]+"]]" + area.value + "[[/"+area.name.split("post_area_")[1]+"]]").join("") + "[[/mhtml]]"
-    sanity ? HTMLFormElement.prototype.submit.call(evt.srcElement) : evt.submitter.disabled = false
+    if(sanity) {
+      if(evt.submitter.name==="preview") document.REPLIER.insertAdjacentHTML('beforeend','<input style="display:none" type="text" name="preview" value="Preview Post"/>')
+      HTMLFormElement.prototype.submit.call(evt.target)
+    } else {
+      evt.submitter.disabled = false
+    }
   }
  }
  const _clone_area = (e) => {
@@ -110,6 +127,8 @@ function bc_post_framework(...args){
     }
     if(qe.disabled) return false;
     obs.disconnect();
+    document.querySelectorAll(".quick-edit .right-buttons input")[0].setAttribute("onclick", "if(this.form.post_area)this.form.post_area.style.height=parseInt(this.form.post_area.style.height)+100+'px'")
+    document.querySelectorAll(".quick-edit .right-buttons input")[1].setAttribute("onclick", "if(this.form.post_area)this.form.post_area.style.height=parseInt(this.form.post_area.style.height)-100+'px'")
     const post_area = _clone_area(qe);
     const parsed = _parse_post(qe, post_area);
     _extra_fields(post_area, schema.html, parsed.html)

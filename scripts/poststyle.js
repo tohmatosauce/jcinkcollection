@@ -1,10 +1,12 @@
 // has to be hijacked b/c we killed the Post whoops
 document.addEventListener("DOMContentLoaded", () => {
+const searchparam = new URLSearchParams(document.location.search);
+const pagecode = searchparam.get("CODE");
+const pageact = searchparam.get("act");
+if( !(pageact === "Post" && (pagecode === "02" || pagecode === "08")) ) return false
 const tag = document.createElement("script");
   tag.innerHTML = `var insCode = new function() {
     // need to be on the right page or wtvr
-    const pagecode = new URLSearchParams(document.location.search).get("CODE")
-    if( !(pagecode == "02" || pagecode === "08") ) return false
     //quick reference this
     var bb = this;
     //addTag overloaded function
@@ -224,7 +226,11 @@ function bc_post_style(...args) {
 
     /* setting up user tags + loading any existing user tags in */
     if (options.usertag[0]) {      
-      const remove_tag = (tag, id, x) => {
+      const tagmenu = document.createElement("tr")
+      menu.insertAdjacentElement('beforebegin', tagmenu);
+      tagmenu.id = "tag-user-menu";
+      
+			const remove_tag = (tag, id, x) => {
         document.REPLIER.tag_user.options[id].selected = false
         x.selected = false
         tag.remove()
@@ -233,35 +239,32 @@ function bc_post_style(...args) {
         if (tag_remover[0][1] === x.innerText) document.REPLIER.post_area_tag_user.value = document.REPLIER.post_area_tag_user.value.replace(tag_remover[0][0], '')
         x.style.display = "block"
         x.setAttribute("has-event", "false")
-        document.REPLIER.tag_user_view.size = (document.REPLIER.tag_user_view.size + 1) < 4 ? (document.REPLIER.tag_user_view.size + 1) : 4
+       document.REPLIER.tag_user_view.size = (document.REPLIER.tag_user_view.size + 1) < 4 ? (document.REPLIER.tag_user_view.size + 1) : 4
       }
+      
       const add_tag = (x) => {
         if (x.getAttribute("has-event") === "true") return false
         x.setAttribute("has-event", "true")
         // add to tag view
         const id = x.value
-        document.REPLIER.tag_user.options[id].selected = true
+        document.REPLIER.tag_user.querySelector("option[value='"+id+"']").selected = true
         const tag = document.createElement("tag")
+        tag.addEventListener("click", remove_tag.bind(null, tag, id, x))
         tagmenu.querySelector(".tags_preview").append(tag)
         tag.innerText = x.innerText
         // check if usertag is already loaded in the textarea itself and add if not
         const tag_finder = [...document.REPLIER.post_area_tag_user.value.matchAll(/\[user=.*?](.*?)\[\/user]/gim)].map(user => user[1])
         if(tag_finder.indexOf(x.innerText) < 0) document.REPLIER.post_area_tag_user.value += "@[" + x.innerText + "]"
         // remove tag
-        tag.addEventListener("click", remove_tag(tag, id, x))
         x.style.display = "none"
         // document.REPLIER.tag_user_search.value = ""
         document.REPLIER.tag_user_search.focus();
       }
-
-      const tagmenu = document.createElement("tr")
-      menu.insertAdjacentElement('beforebegin', tagmenu);
-      tagmenu.id = "tag-user-menu";
-
+      
       const search_tag = (evt, usertags) => {
         const searchkey = evt.target.value;
-        const matched = usertags.filter(([, x]) => searchkey.length > 0 && Array.from(document.REPLIER.tag_user.selectedOptions, o => o.innerText).indexOf(x) === -1 && x.toLowerCase().includes(searchkey.toLowerCase()));
-        
+        const matched = usertags.filter(([, x]) => searchkey.length > 0 && Array.from(document.REPLIER.tag_user.selectedOptions, o => o.innerText).indexOf(x) === -1 && ( x.normalize("NFD").replace(/\p{Diacritic}/gu, '').toLowerCase().includes(searchkey.toLowerCase()) || x.normalize("NFC").toLowerCase().includes(searchkey.toLowerCase()) ) );
+
         if (matched.length > 0) {
           document.REPLIER.tag_user_view.style.display = 'initial'
           document.REPLIER.tag_user_view.innerHTML = ''
@@ -277,6 +280,7 @@ function bc_post_style(...args) {
           document.REPLIER.tag_user_view.style.display = 'none'
         }
       }
+      
       (async () => {
         const usertags = await options.usertag[1]();
         tagmenu.innerHTML = "<select name='tag_user' multiple hidden disabled>" + usertags.map(([id, user]) => "<option value='" + id + "'>" + user + "</option>").join("") + "</select><td class='pformleft'>Tag user(s)</td><td class='pformright'><div class='tags_preview'></div><input type='text' name='tag_user_search' placeholder='Search user(s)'/><select name='tag_user_view' style='display:none;overflow:auto' multiple></select></td>"
@@ -286,7 +290,7 @@ function bc_post_style(...args) {
         const tag_map = new Map(usertags)
         tag_finder.forEach(id => {
           const name = tag_map.get(id)
-          document.REPLIER.tag_user.options[id].selected = true
+          document.REPLIER.tag_user.querySelector("option[value='"+id+"']").selected = true
           const tag = document.createElement("tag")
           document.querySelector(".tags_preview").append(tag)
           tag.innerText = name
@@ -338,7 +342,7 @@ function bc_post_style(...args) {
     const style_options = document.querySelectorAll(".post-style-options")
     style_options.forEach(style => {
       const name = style.dataset.id
-      const value = metadata.post_style_options[name].replaceAll("&lt;","<").replaceAll("&gt;",">").replaceAll("&amp;","&")
+      const value = metadata.post_style_options[name]
       style.querySelector(".pformright").children[0].value = value
     })
     
@@ -354,8 +358,7 @@ function bc_post_style(...args) {
 
   const _parse_template = (template, data, options) => {
     const key_val = {
-      post: data.post, 
-      "tags exists": json?.html?.tag_user ? 1 : 0, 
+      post: data.post,
       ...data.html,
       ...data.meta_data.post_style_options,
     }
@@ -386,13 +389,14 @@ function bc_post_style(...args) {
           post_style_options: json?.meta_data?.post_style_options || Object.fromEntries(Object.entries(fieldlist).map(([k,]) => [k,'']))
         },
         html: {
-          tag_user: json?.html?.tag_user || ""
+          tags: json?.html?.tag_user || "",
+          "tags exists": json?.html?.tag_user ? 1 : 0
         },
         post: json?.post || ''
       }
       
       const [selector = "", _, callback = ()=>{}] = (data.meta_data.post_style === "---") ? ['', '', ()=>{}] : styles[data.meta_data.post_style]
-      data.meta_data.post_style_options = Object.fromEntries(Object.entries(data.meta_data.post_style_options).map(([k,v]) => [k,v.replaceAll("&lt;","<").replaceAll("&gt;",">").replaceAll("&amp;","&")]))
+      data.meta_data.post_style_options = Object.fromEntries(Object.entries(data.meta_data.post_style_options).map(([k,v]) => [k,v]))
       const post_options_exists = Object.fromEntries(Object.entries(data.meta_data.post_style_options).map(([k,v]) => [k+" exists", v.trim() ? 1 : 0]));
       data.meta_data.post_style_options = {...post_options_exists, ...data.meta_data.post_style_options};
       const template = _parse_template(selector, data, options)
@@ -414,3 +418,202 @@ function bc_post_style(...args) {
 		bbcodes[i].setAttribute("onclick", `ins_tag("${tag}")`)
 	}
 }
+
+function bc_better_ucp(args) {
+  if (!document.querySelector('input[name="CODE"][value="21"]')) return false;
+
+  const validate_field_table = (table) => {
+    const flattened = flatten_mixed_array(table);
+    const flattened_ids = flattened.filter(e => Number.isInteger(e));
+    return new Set(flattened_ids).size !== flattened_ids.length;
+  }
+
+  // Convert stringified variables embedded in the HTML templates into useable variables. Requires the field ID & associated template.
+  const parse_template = (id, template) => {
+    const forminput = document.querySelector("#ucpcontent .forminput[name='field_" + id + "']");
+    const key_val = forminput ?
+      {
+        label: forminput.closest("tr").querySelector("label").innerHTML,
+        description: Array.from(forminput.closest("tr").getElementsByTagName("td")[0].childNodes)[4]?.textContent.trim() ?? "",
+        input: forminput.closest("td").innerHTML,
+        id: id
+      } :
+      {
+        day: '<select name="day" class="forminput">' + document.querySelector("select[name='day']").innerHTML + '</select>',
+        month: '<select name="month" class="forminput">' + document.querySelector("select[name='month']").innerHTML + '</select>',
+        year: '<select name="year" class="forminput">' + document.querySelector("select[name='year']").innerHTML + '</select>',
+        website: document.querySelector("input[name='WebSite']").parentNode.innerHTML,
+        location: document.querySelector("input[name='Location']").parentNode.innerHTML,
+        interests: document.querySelector("textarea[name='Interests']").parentNode.innerHTML,
+        submit: document.querySelector("#ucpcontent form .forminput[type='submit']").closest("td").innerHTML
+      }
+    const template_content = Array.from(document.querySelector(template).content.childNodes).reduce((acc, curr) => acc += curr.outerHTML || curr.nodeValue || "", "");
+    const template_content_replaced = template_content.replaceAll(/(\$\{)(.*?)(\})/g, (m, _, p2) => key_val[p2] ?? m);
+    return template_content_replaced;
+  }
+
+  // Take an array that contains mixed data, such as arrays, JS objects, text, etc., and flatten it.
+  // ! Does not preserve nesting order.
+  const flatten_mixed_array = (obj) => {
+    const result = [];
+    if (typeof obj !== "object") result.push(obj);
+    else {
+      for (const k in obj) {
+        if (!Array.isArray(obj)) result.push(...flatten_mixed_array(k));
+        result.push(...flatten_mixed_array(obj[k]));
+      }
+    }
+    return result;
+  }
+  // Takes an object and flattens it. Does preserve nesting order.
+  // https://www.tutorialspoint.com/flattening-a-json-object-in-javascript
+  const flatten_object = (obj, res = {}, extraKey = '') => {
+    for (key in obj) {
+      if (typeof obj[key] !== 'object') {
+        const newKey = !Array.isArray(obj) ? key : '';
+        const attr_made = Object.hasOwn(res, extraKey.trim() + newKey);
+        attr_made ? res[extraKey.trim() + newKey].push(obj[key]) : res[extraKey.trim() + newKey] = [obj[key]];
+      } else {
+        const newKey = !Array.isArray(obj) ? key : key;
+        flatten_object(obj[key], res, extraKey + newKey + " ");
+      };
+    };
+    return res;
+  };
+
+  const translate_group = (name, t) => {
+    const result = t.get(name);
+    if (!result) throw new Error(`Cannot find definition for field group: %${name}`);
+    return result;
+  }
+
+  // Transpose the field templates list so that it is organised field number first.
+  const get_transposed_fields = (transposed, default_field, template_class) => {
+    const _field_templates = new Map([[0, default_field]]);
+    for (const [k, v] of Object.entries(transposed)) {
+      v.forEach(i => _field_templates.set(i, k + "." + template_class));
+    }
+    return _field_templates;
+  }
+
+  const get_field_templates = (table, id) => {
+    const template = table.get(id) || table.get(0);
+    const range = document.createRange();
+    const html_template = range.createContextualFragment( parse_template(id, template) );
+    return html_template.getRootNode().childNodes
+  }
+
+  // for a cleaner main()... just indexes the UCP for the full field list, as well as required and optional fields.
+  const get_field_list = () => {
+    const get_field_id = (f) => Array.from(f).map(e => parseInt(e.getAttribute('name').slice(6)));
+    const field_list = get_field_id(document.querySelectorAll('#ucpcontent form .forminput[name^=field]')),
+      required_fields = get_field_id(document.querySelectorAll('#ucpcontent form table')[0].querySelectorAll('.forminput[name^=field]')),
+      optional_fields = get_field_id(document.querySelectorAll('#ucpcontent form table')[1].querySelectorAll('.forminput[name^=field]'));
+    return { field_list, required_fields, optional_fields };
+  }
+
+  // Takes an object or array, finds any referenced field group variables, and converts them into field indexes.
+  const get_grouped_fields = (obj, table) => {
+    let result = obj;
+    if (typeof obj === "object") {
+      for (const k in obj) {
+        const to_insert = get_grouped_fields(obj[k], table);
+        if (Array.isArray(obj) && Array.isArray(to_insert)) {
+          const index = obj.indexOf(obj[k]);
+          obj.splice(index, 1, ...to_insert);
+        } else {
+          obj[k] = to_insert;
+        }
+      }
+    }
+    else if (!Number.isInteger(obj) && Array.from(obj.trim())[0] == "%") {
+      const group_name = obj.trim().slice(1).trim();
+      const translation = translate_group(group_name, table);
+      result = translation;
+    }
+    return result;
+  }
+
+  const get_level_map = (curr_node, depth = 0, map = new Array()) => {
+    if (curr_node !== null) {
+      map[depth] === undefined ?
+        map[depth] = [curr_node] :
+        map[depth] = [...map[depth], curr_node];
+      for (const node of curr_node.children) get_level_map(node, depth + 1, map);
+    }
+    return map;
+  }
+
+  const ucpform = document.querySelector("#ucpcontent form"),
+    { field_list, required_fields, optional_fields } = get_field_list(),
+    wrapper_name = args.wrapper_name || "betterdiv",
+    template_class = args.template_class || "better_ucp_templates",
+    inner_structure = args.template_inner_structure || "#inner_structure",
+    default_field = args.template_default_field || "#default_field",
+    field_groups = new Map(Object.entries({ ...args.field_groups, required: required_fields, optional: optional_fields })) || new Map(Object.entries({ required: required_fields, optional: optional_fields })),
+    field_order = get_grouped_fields(args.field_order, field_groups) || [],
+    flattened_order = flatten_mixed_array(field_order),
+    field_templates_transposed = get_grouped_fields(args.field_templates, field_groups) || {},
+    field_templates = get_transposed_fields(field_templates_transposed, default_field, template_class);
+
+  // Throw error if there are duplicate field IDs listed in field_order or field_templates
+  const validate = {
+    templates: validate_field_table(field_templates_transposed),
+    order: validate_field_table(field_order)
+  }
+  if (validate.templates || validate.order) {
+    throw new Error(`Duplicate field IDs listed in field_templates or field_order.`);
+  }
+
+  // Create wrapper
+  const doc = document.createElement('body');
+  const wrapper = document.createElement('div');
+  wrapper.id = wrapper_name;
+  wrapper.innerHTML += '<input type="hidden" name="act" value="UserCP"><input type="hidden" name="CODE" value="21">';
+  doc.append(wrapper);
+
+  // Fill the inner structure
+  const inner_structure_translated = parse_template('', inner_structure + "." + template_class);
+  const inner_structure_parsed = new DOMParser().parseFromString(inner_structure_translated, "text/html")
+  const inner_structure_body = inner_structure_parsed.getRootNode().body;
+  wrapper.append(...inner_structure_body.childNodes);
+  const objected_order = { ["#" + wrapper_name]: field_order };
+  const order = Object.entries(flatten_object(objected_order)).map(([k, v]) => [k.split(" ").filter((str,) => Number.isNaN(parseInt(str)) ).join(" "), v]);
+ 
+  // Track nodes used
+  const visited_nodes = [];
+  for (const [selector, fields] of order) {
+    let parent = null;
+    for (const id of fields) {
+      const parent_possibilities = doc.querySelectorAll(selector);
+      for (const p of parent_possibilities)
+        if (visited_nodes.indexOf(p) === -1) parent = p;
+      if (!parent) throw new Error(`${selector} doesn't exist in your given inner structure. Accidental duplicate selectors listed in field_order is likely the culprit.`);
+      parent.append(...get_field_templates(field_templates, id));
+    }
+    visited_nodes.push(parent)
+  }
+  // Dump all default variables that aren't included in the field order, so we need a way to compare field order list versus field list.
+  const get_shallowest_node = (list) => {
+    const level_structure_map = get_level_map(wrapper).slice(1);
+    for (const floor of level_structure_map) {
+      const floor_census = floor.filter(door => {
+        for (const el of list) {
+          if(el === door || door.contains(el)) return door; 
+        }
+        
+      });
+      if (floor_census.length > 0) return floor_census.pop()
+    }
+    return false;
+  }
+  const shallowest_node = get_shallowest_node(visited_nodes);
+  const undeclared_fields = field_list.filter(f => flattened_order.indexOf(f) < 0);
+  const dump_remaining = shallowest_node || wrapper.lastChild;
+  for (const id of undeclared_fields.reverse()) {
+    dump_remaining.after(...get_field_templates(field_templates, id));
+  }
+  // Add wrapper to document
+  while (ucpform.firstChild) ucpform.removeChild(ucpform.firstChild);
+  ucpform.appendChild(wrapper);
+};
