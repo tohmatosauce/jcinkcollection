@@ -386,7 +386,10 @@ function bc_post_style(...args) {
       const data = { 
         meta_data: {
           post_style: json?.meta_data?.post_style || "---", 
-          post_style_options: json?.meta_data?.post_style_options || Object.fromEntries(Object.entries(fieldlist).map(([k,]) => [k,'']))
+          post_style_options: json?.meta_data?.post_style_options || Object.fromEntries(Object.entries(fieldlist).map(([k,]) => [k,''])),
+          forum_id: json.meta_data.forum_id,
+          author_name: json.meta_data.author_name,
+          author_id: json.meta_data.author_id
         },
         html: {
           tags: json?.html?.tag_user || "",
