@@ -200,7 +200,7 @@ function ins_tag(tag) {
 }
 
 function bc_post_style(...args) {
-  const [post, styles, fieldlist, options] = args
+  const [post, styles, fieldlist, options, postcb = ()=>{}] = args
   if (!document.querySelector(post) && !document.REPLIER?.Post) return false
 
   const _add_menu = (stylemap, fieldmap, options, json) => {
@@ -312,7 +312,12 @@ function bc_post_style(...args) {
     menu.querySelector(".pformright").append(select)
     select.id = "post-style"
     select.name = "post_style"
-    stylemap.forEach((v, i) => menu.querySelector(".pformright select").insertAdjacentHTML("beforeend", "<option>" + v.name + "</option>"))
+    stylemap.forEach(v => {
+      if(v.group && !menu.querySelector("optgroup[label='"+v.group+"']")) 
+        menu.querySelector(".pformright select").insertAdjacentHTML("beforeend", "<optgroup label='"+ v.group +"'></optgroup>")
+      const appendTo = menu.querySelector("optgroup[label='"+v.group+"']") || menu.querySelector(".pformright select")
+      appendTo.insertAdjacentHTML("beforeend", "<option value='"+ v.name +"'>" + v.name + "</option>")
+    })
     menu.addEventListener("change", (evt) => {
       const $this = evt.target
       document.querySelectorAll(".post-style-options").forEach(option => {
@@ -404,7 +409,12 @@ function bc_post_style(...args) {
       data.meta_data.post_style_options = {...post_options_exists, ...data.meta_data.post_style_options};
       const template = _parse_template(selector, data, options)
       e.innerHTML = template
-      callback(e, data)
+
+      const methods = {
+        "parse": (selector, data, options) => _parse_template(selector, data, options)
+      }
+      callback(e, data, methods, args)
+      postcb(e, data, methods, args)
     }
   );
 
