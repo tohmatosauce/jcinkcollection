@@ -34,10 +34,6 @@ function bc_post_framework(...args){
 	    html: html ? Object.fromEntries(html_finder.map(f => [f[1], f[2]])) : false,
 	    meta_data: mdata ? desanitize( JSON.parse(mdata) ) : false
    }
-
-
-   
-   // .replaceAll("&lt;","<").replaceAll("&gt;",">").replaceAll("&amp;","&")
    
    repl.innerHTML = json["post"]
    
@@ -99,7 +95,7 @@ function bc_post_framework(...args){
  const _extra_fields = (cloned, schema, data) => {
   Object.entries(schema).forEach(([k,]) => {
     const name = "post_area_" + k;
-    cloned.insertAdjacentHTML("afterend", '<textarea class="post_areas" name="'+name+'" hidden></textarea>')
+    cloned.insertAdjacentHTML("afterend", "<textarea class='post_areas' name='" + name + "'hidden></textarea>")
     const el = cloned.nextElementSibling
     el.value = data ? data[k] ?? '' : ''
   })
@@ -132,10 +128,12 @@ function bc_post_framework(...args){
     const post_area = _clone_area(qe);
     const parsed = _parse_post(qe, post_area);
     _extra_fields(post_area, schema.html, parsed.html)
+    
     post_area.onchange = (evt) => {
       const post = "[[mpost]]" + evt.target.value + "[[/mpost]]"
       const json = parsed.meta_data
-      qe.value = "[[mdata]]" + JSON.stringify(json) + "[[/mdata]]" + post + "[[mhtml]]" + Array.from(parsed.html, area => "[["+area.name.split("post_area_")[1]+"]]" + area.value + "[[/"+area.name.split("post_area_")[1]+"]]").join("") + "[[/mhtml]]"
+      const html = Object.entries(parsed.html).map(([area, value]) => "[["+area+"]]" + value + "[[/"+area+"]]").join("")
+      qe.value = "[[mdata]]" + JSON.stringify(json) + "[[/mdata]]" + post + "[[mhtml]]" + html + "[[/mhtml]]"
     };
     obs.observe(evt[0].target.closest("[id*='pid_']"), {childList: true, subtree: true});
   });
