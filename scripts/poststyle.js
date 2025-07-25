@@ -5,7 +5,8 @@ const pagecode = searchparam.get("CODE");
 const pageact = searchparam.get("act");
 if( !(pageact === "Post" && (pagecode === "02" || pagecode === "08")) ) return false
 const tag = document.createElement("script");
-  tag.innerHTML = `var insCode = new function() {
+  tag.innerHTML = 
+  `jBBCode = new function() {
     // need to be on the right page or wtvr
     //quick reference this
     var bb = this;
@@ -151,53 +152,51 @@ const tag = document.createElement("script");
         bb.mode = 'normal';
         document.REPLIER.bbmode[1].checked = true;
     }
-  }`
-  document.getElementsByTagName("head")[0].appendChild(tag);
+  }
   
+  function simpletag(tag) {
+    var start=0, end=0, editor = document.REPLIER.post_area, openTag, button;
+    if (is_ie) {
+        var sel = document.selection;
+        var rng = sel.createRange();
+            rng.colapse;
+        if (sel.type == "Text" && rng != null) {
+            jBBCode.addTag('['+tag.toLowerCase()+']','[/'+tag.toLowerCase()+']');
+            return;
+        }
+    } else {
+        start       = editor.selectionStart;
+        end         = editor.selectionEnd;
+    }
+    button = jBBCode.getButton(tag);
+    openTag = button.value.match(/\\*/);
+    if (start != end) {
+        jBBCode.addTag('['+tag.toLowerCase()+']','[/'+tag.toLowerCase()+']');
+    } else if (openTag) {
+        button.setAttribute('value', ' '+tag+' ');
+        jBBCode.addTag('[/'+tag.toLowerCase()+']');
+        document.REPLIER.tagcount.value--;
+        jBBCode.openTags=jBBCode.openTags.replace("|"+tag,'');
+    } else if (jBBCode.mode=='ezmode') {
+        inserttext = prompt(jBBCode.text["start"] + "\\n[" + tag + "]Your Text[/" + tag + "]");
+        if ( (inserttext != null) && (inserttext != "") ) {
+            jBBCode.addTag("[" + tag.toLowerCase() + "]" + inserttext + "[/" + tag.toLowerCase() + "] ");
+        }
+    } else {
+        if (tag == 'CODE' || tag == 'QUOTE') {
+            closeall();
+        }
+        button.value+='*';
+        hstat('click_close');
+        jBBCode.addTag('['+tag.toLowerCase()+']');
+        document.REPLIER.tagcount.value++;
+        jBBCode.openTags+='|'+tag;
+    }
+  }
+  `
+  document.getElementById("code-buttons").appendChild(tag);
 });
-/*-------------------------------------------*\
-|*---------- Simple tags function -----------*|
-|*-------------- B, U, I etc. ---------------*|
-\*-------------------------------------------*/
-function ins_tag(tag) {
-  var start=0, end=0, editor = document.REPLIER.post_area, openTag, button;
-  if (is_ie) {
-      var sel = document.selection;
-      var rng = sel.createRange();
-          rng.colapse;
-      if (sel.type == "Text" && rng != null) {
-          insCode.addTag('['+tag.toLowerCase()+']','[/'+tag.toLowerCase()+']');
-          return;
-      }
-  } else {
-      start       = editor.selectionStart;
-      end         = editor.selectionEnd;
-  }
-  button = insCode.getButton(tag);
-  openTag = button.value.match(/\*/);
-  if (start != end) {
-      insCode.addTag('['+tag.toLowerCase()+']','[/'+tag.toLowerCase()+']');
-  } else if (openTag) {
-      button.setAttribute('value', ' '+tag+' ');
-      insCode.addTag('[/'+tag.toLowerCase()+']');
-      document.REPLIER.tagcount.value--;
-      insCode.openTags=insCode.openTags.replace("|"+tag,'');
-  } else if (insCode.mode=='ezmode') {
-      inserttext = prompt(insCode.text["start"] + "\n[" + tag + "]Your Text[/" + tag + "]");
-      if ( (inserttext != null) && (inserttext != "") ) {
-          insCode.addTag("[" + tag.toLowerCase() + "]" + inserttext + "[/" + tag.toLowerCase() + "] ");
-      }
-  } else {
-      if (tag == 'CODE' || tag == 'QUOTE') {
-          closeall();
-      }
-      button.value+='*';
-      hstat('click_close');
-      insCode.addTag('['+tag.toLowerCase()+']');
-      document.REPLIER.tagcount.value++;
-      insCode.openTags+='|'+tag;
-  }
-}
+
 
 function bc_post_style(...args) {
   const [post, styles, fieldlist, options, postcb = ()=>{}] = args
@@ -422,12 +421,12 @@ function bc_post_style(...args) {
   if (!document?.REPLIER?.Post || document?.REPLIER?.qrc) return false
   _add_menu(stylemap, fieldmap, options, framework)
   // _load_menu(framework, options)
-  document.querySelectorAll(".codebuttons[onclick*='simpletag']").forEach(btn => btn.setAttribute('onclick', btn.getAttribute('onclick').replace("simpletag","ins_tag")))
+  // document.querySelectorAll(".codebuttons[onclick*='simpletag']").forEach(btn => btn.setAttribute('onclick', btn.getAttribute('onclick').replace("simpletag","ins_tag")))
 	const bbcodes = document.querySelectorAll(".codebuttons");
 	const custombbcode_start = Array.from(bbcodes).indexOf( Array.from(document.querySelectorAll(".codebuttons[accesskey]")).slice(-1)[0] );
 	for(let i = custombbcode_start; i < bbcodes.length ; i++) {
 		const tag = bbcodes[i].value.trim()
     bbcodes[i].name = tag
-		bbcodes[i].setAttribute("onclick", `ins_tag("${tag}")`)
+		bbcodes[i].setAttribute("onclick", `simpletag("${tag}")`)
 	}
 }
