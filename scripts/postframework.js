@@ -21,7 +21,7 @@ function bc_post_framework(...args){
 
     const desanitize = (obj, key, prev) => {
       if(typeof obj === 'string' || obj instanceof String) {
-        prev[key] = obj.replaceAll("&lt;","<").replaceAll("&gt;",">").replaceAll("&amp;","&")
+        prev[key] = obj.replaceAll("<","<").replaceAll(">",">").replaceAll("&amp;","&")
         return;
       } else if(typeof obj === 'object' && obj !== null) {
         Object.entries(obj).forEach(([k,v]) => desanitize(v, k, obj))
@@ -46,7 +46,6 @@ function bc_post_framework(...args){
   return metadata;
  }
  const _submit_post = (evt, schema) => {
-  document.REPLIER.Post.value = document.REPLIER.post_area.value;
   let validate = false;
   try { validate = ValidateForm(); } 
   catch { validate = true; }
@@ -74,10 +73,10 @@ function bc_post_framework(...args){
       }
     }
     sanitize()
-   const post = "[[mpost]]" + document.REPLIER.post_area.value + "[[/mpost]]"
-   const json = Object.fromEntries(data);
-   document.REPLIER.Post.value = "[[mdata]]" + JSON.stringify(json) + "[[/mdata]]" + post + "[[mhtml]]" + Array.from(document.querySelectorAll(".post_areas"), area => "[["+area.name.split("post_area_")[1]+"]]" + area.value + "[[/"+area.name.split("post_area_")[1]+"]]").join("") + "[[/mhtml]]"
     if(sanity) {
+      const post = "[[mpost]]" + document.REPLIER.Post.value + "[[/mpost]]"
+      const json = Object.fromEntries(data);
+      document.REPLIER.Post.value = "[[mdata]]" + JSON.stringify(json) + "[[/mdata]]" + post + "[[mhtml]]" + Array.from(document.querySelectorAll(".post_areas"), area => "[["+area.name.split("post_area_")[1]+"]]" + area.value + "[[/"+area.name.split("post_area_")[1]+"]]").join("") + "[[/mhtml]]"
       if(evt.submitter.name==="preview") document.REPLIER.insertAdjacentHTML('beforeend','<input style="display:none" type="text" name="preview" value="Preview Post"/>')
       HTMLFormElement.prototype.submit.call(evt.target)
     } else {
@@ -85,18 +84,11 @@ function bc_post_framework(...args){
     }
   }
  }
- const _clone_area = (e) => {
-  const post_area = e.cloneNode(true);
-  post_area.name = "post_area";
-  e.hidden = "true";
-  e.insertAdjacentElement("beforebegin", post_area);
-  return post_area;
- }
- const _extra_fields = (cloned, schema, data) => {
+ const _extra_fields = (textarea, schema, data) => {
   Object.entries(schema).forEach(([k,]) => {
     const name = "post_area_" + k;
-    cloned.insertAdjacentHTML("afterend", "<textarea class='post_areas' name='" + name + "'hidden></textarea>")
-    const el = cloned.nextElementSibling
+    textarea.insertAdjacentHTML("afterend", "<textarea class='post_areas' name='" + name + "'hidden></textarea>")
+    const el = textarea.nextElementSibling
     el.value = data ? data[k] ?? '' : ''
   })
  }
@@ -125,16 +117,19 @@ function bc_post_framework(...args){
     obs.disconnect();
     document.querySelectorAll(".quick-edit .right-buttons input")[0].setAttribute("onclick", "if(this.form.post_area)this.form.post_area.style.height=parseInt(this.form.post_area.style.height)+100+'px'")
     document.querySelectorAll(".quick-edit .right-buttons input")[1].setAttribute("onclick", "if(this.form.post_area)this.form.post_area.style.height=parseInt(this.form.post_area.style.height)-100+'px'")
-    const post_area = _clone_area(qe);
-    const parsed = _parse_post(qe, post_area);
-    _extra_fields(post_area, schema.html, parsed.html)
-    
-    post_area.onchange = (evt) => {
-      const post = "[[mpost]]" + evt.target.value + "[[/mpost]]"
+    const parsed = _parse_post(qe);
+    _extra_fields(qe, schema.html, parsed.html)
+    const save_btn = qe.closest(".quick-edit").querySelector("[name='save']")
+    const save = save_btn.getAttribute("onclick").split("(")[1].split(")")[0].split(",")
+    save_btn.setAttribute("onclick", "")
+    save_btn.onclick = (evt) => {
+      const post = qe.value
       const json = parsed.meta_data
       const html = Object.entries(parsed.html).map(([area, value]) => "[["+area+"]]" + value + "[[/"+area+"]]").join("")
-      qe.value = "[[mdata]]" + JSON.stringify(json) + "[[/mdata]]" + post + "[[mhtml]]" + html + "[[/mhtml]]"
-    };
+      qe.value = "[[mdata]]" + JSON.stringify(json) + "[[/mdata]]" +  "[[mpost]]" + post + "[[/mpost]]" + "[[mhtml]]" + html + "[[/mhtml]]"
+      SKIFS.quickEdit.save( ...save )
+      qe.value = post
+    }
     obs.observe(evt[0].target.closest("[id*='pid_']"), {childList: true, subtree: true});
   });
   observe.observe(pid, {childList: true, subtree: true})
@@ -163,14 +158,12 @@ function bc_post_framework(...args){
   }
  }
  const normal_schema = {...default_mdata, ...schema.text};
- const post_area = _clone_area(document.REPLIER.Post);
- post_area.setAttribute("data-visible", "false")
- post_area.disabled = true
- // post_area.onchange = (evt) => document.REPLIER.Post.value = evt.target.value;
- const parsed = _parse_post(document.REPLIER.Post, post_area);
- _extra_fields(post_area, schema.html, parsed.html)
+ document.REPLIER.Post.setAttribute("data-visible", "false")
+ document.REPLIER.Post.disabled = true
+ const parsed = _parse_post(document.REPLIER.Post);
+ _extra_fields(document.REPLIER.Post, schema.html, parsed.html)
  document.REPLIER.addEventListener("submit", (e) => _submit_post(e, normal_schema));
- post_area.setAttribute("data-visible", "true")
- post_area.disabled = false
+ document.REPLIER.Post.setAttribute("data-visible", "true")
+ document.REPLIER.Post.disabled = false
  return parsed;
 }
