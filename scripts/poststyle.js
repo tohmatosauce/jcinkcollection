@@ -6,7 +6,7 @@ function bc_post_style(...args) {
     const fw = { 
       meta_data: {
         post_style: json?.meta_data?.post_style || "---", 
-        post_style_options: json?.meta_data?.post_style_options || Object.fromEntries(Object.entries(fieldlist).map(([k,]) => [k,'']))
+        post_style_options: { ...Object.fromEntries(Object.entries(fieldlist).map(([k,]) => [k,''])), ...json?.meta_data?.post_style_options }
       },
       html: {
         tag_user: json?.html?.tag_user || ""
@@ -166,9 +166,10 @@ function bc_post_style(...args) {
       ...data.html,
       ...data.meta_data.post_style_options,
     }
+    console.log(key_val)
     const template_class = options.templates || "poststyle_templates"
     const template_content = data.meta_data.post_style === "---" ? ("<post>${post}"+ (data.html.tag_user?"<br><br>${tags}":"") + "</post>") : Array.from(document.querySelector("template"+template+"."+template_class).content.childNodes).reduce((acc, curr) => acc += curr.outerHTML || curr.nodeValue || "","")
-    const template_content_replaced = template_content.replaceAll(/\$\{([^\.]*?)\}/g, (_,p1) => key_val[p1] ?? "").replaceAll(/\$\{(.*?)\.(.*?)\}/g, (_,p1,p2) => key_val[p1][p2])
+    const template_content_replaced = template_content.replaceAll(/\$\{([^\.]*?)\}/g, (_,p1) => key_val[p1] ?? "").replaceAll(/\$\{(.*?)\.(.*?)\}/g, (_,p1,p2) => key_val[p1][p2] ?? "")
     return template_content_replaced
   }
   
@@ -190,7 +191,7 @@ function bc_post_style(...args) {
       const data = { 
         meta_data: {
           post_style: json?.meta_data?.post_style || "---", 
-          post_style_options: json?.meta_data?.post_style_options || Object.fromEntries(Object.entries(fieldlist).map(([k,]) => [k,''])),
+          post_style_options: { ...Object.fromEntries(Object.entries(fieldlist).map(([k,]) => [k,''])), ...json?.meta_data?.post_style_options },
           forum_id: json.meta_data.forum_id,
           author_name: json.meta_data.author_name,
           author_id: json.meta_data.author_id
@@ -201,9 +202,8 @@ function bc_post_style(...args) {
         },
         post: json?.post || ''
       }
-      
+
       const [selector = "", _, callback = ()=>{}] = (data.meta_data.post_style === "---") ? ['', '', ()=>{}] : styles[data.meta_data.post_style]
-      data.meta_data.post_style_options = Object.fromEntries(Object.entries(data.meta_data.post_style_options).map(([k,v]) => [k,v]))
       const post_options_exists = Object.fromEntries(Object.entries(data.meta_data.post_style_options).map(([k,v]) => [k+" exists", v.trim() ? 1 : 0]));
       data.meta_data.post_style_options = {...post_options_exists, ...data.meta_data.post_style_options};
       const template = _parse_template(selector, data, options)
