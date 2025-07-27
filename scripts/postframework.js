@@ -21,7 +21,7 @@ function bc_post_framework(...args){
 
     const desanitize = (obj, key, prev) => {
       if(typeof obj === 'string' || obj instanceof String) {
-        prev[key] = obj.replaceAll("<","<").replaceAll(">",">").replaceAll("&amp;","&")
+        prev[key] = obj.replaceAll("&lt;","<").replaceAll("&gt;",">").replaceAll("&amp;","&")
         return;
       } else if(typeof obj === 'object' && obj !== null) {
         Object.entries(obj).forEach(([k,v]) => desanitize(v, k, obj))
