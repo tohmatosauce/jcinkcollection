@@ -74,11 +74,12 @@ function bc_post_framework(...args){
     }
     sanitize()
     if(sanity) {
-      const post = "[[mpost]]" + document.REPLIER.Post.value + "[[/mpost]]"
+      const post = document.REPLIER.Post.value
       const json = Object.fromEntries(data);
-      document.REPLIER.Post.value = "[[mdata]]" + JSON.stringify(json) + "[[/mdata]]" + post + "[[mhtml]]" + Array.from(document.querySelectorAll(".post_areas"), area => "[["+area.name.split("post_area_")[1]+"]]" + area.value + "[[/"+area.name.split("post_area_")[1]+"]]").join("") + "[[/mhtml]]"
+      document.REPLIER.Post.value = "[[mdata]]" + JSON.stringify(json) + "[[/mdata]][[mpost]]" + post + "[[/mpost]][[mhtml]]" + Array.from(document.querySelectorAll(".post_areas"), area => "[["+area.name.split("post_area_")[1]+"]]" + area.value + "[[/"+area.name.split("post_area_")[1]+"]]").join("") + "[[/mhtml]]"
       if(evt.submitter.name==="preview") document.REPLIER.insertAdjacentHTML('beforeend','<input style="display:none" type="text" name="preview" value="Preview Post"/>')
       HTMLFormElement.prototype.submit.call(evt.target)
+      document.REPLIER.Post.value = post
     } else {
       evt.submitter.disabled = false
     }
