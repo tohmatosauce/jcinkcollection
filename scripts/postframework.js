@@ -114,7 +114,7 @@ function bc_post_framework(...args){
       evt[0].target.querySelector(post)?.setAttribute("data-visible", "true");
       return
     }
-    if(qe.disabled || pid.getAttribute("qe-loaded") === "true") return false;
+    if(qe.disabled || pid.children[0].getAttribute("qe-loaded") === "true") return false;
     obs.disconnect();
     document.querySelectorAll(".quick-edit .right-buttons input")[0].setAttribute("onclick", "if(this.form.post_area)this.form.post_area.style.height=parseInt(this.form.post_area.style.height)+100+'px'")
     document.querySelectorAll(".quick-edit .right-buttons input")[1].setAttribute("onclick", "if(this.form.post_area)this.form.post_area.style.height=parseInt(this.form.post_area.style.height)-100+'px'")
@@ -131,7 +131,7 @@ function bc_post_framework(...args){
       SKIFS.quickEdit.save( ...save )
       qe.value = post
     }
-    pid.setAttribute("qe-loaded", "true")
+    pid.children[0].setAttribute("qe-loaded", "true")
     obs.observe(evt[0].target.closest("[id*='pid_']"), {childList: true, subtree: true});
   });
   observe.observe(pid, {childList: true, subtree: true})
