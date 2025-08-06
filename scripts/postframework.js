@@ -155,7 +155,7 @@ function bc_post_framework(...args){
       else { return document.REPLIER.post_as.options[index].innerText.split("»")[1].trim(); }
   },
   "author_id": () => {
-    if(!document.REPLIER?.post_as && !document.REPLIER?.post_as_username) return parsed.meta_data?.author_id || document.getElementById("logged-in-as").href.split("=")[1]
+    if(!document.REPLIER?.post_as && !document.REPLIER?.post_as_username) return parsed.meta_data?.author_name || document.getElementById("logged-in-as").href.split("=")[1]
       const index = document.REPLIER.post_as.options.selectedIndex;
       if(!document.REPLIER.post_as) { return -1 }
       else if(index===0) { return parsed.meta_data?.author_id || document.getElementById("logged-in-as").href.split("=")[1] }
