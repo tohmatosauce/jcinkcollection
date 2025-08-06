@@ -141,30 +141,30 @@ function bc_post_framework(...args){
  // posting view
  // need to convert any double quotes into their encoded counterpart " we can convert back after the fact.
   document.REPLIER.setAttribute("onsubmit", "")
- const default_mdata = {
+  document.REPLIER.Post.setAttribute("data-visible", "false")
+  document.REPLIER.Post.disabled = true
+  const parsed = _parse_post(document.REPLIER.Post);
+  _extra_fields(document.REPLIER.Post, schema.html, parsed.html)
+  const default_mdata = {
   "forum_id": () => document.REPLIER.f.value,
   "author_name": () => {
-    if(!document.REPLIER?.post_as && !document.REPLIER?.post_as_username) return document.getElementById("logged-in-as").innerText;
-     const index = document.REPLIER.post_as.options.selectedIndex;
-     if(!document.REPLIER.post_as) { return document.REPLIER.post_as_username.value }
-     else if(index===0) { return document.getElementById("logged-in-as").innerText }
-     else { return document.REPLIER.post_as.options[index].innerText.split("»")[1].trim(); }
+    if(!document.REPLIER?.post_as && !document.REPLIER?.post_as_username) return parsed.meta_data?.author_name || document.getElementById("logged-in-as").innerText
+      const index = document.REPLIER.post_as.options.selectedIndex;
+      if(!document.REPLIER.post_as) { return parsed.meta_data?.author_name || document.REPLIER.post_as_username.value }
+      else if(index===0) { return document.getElementById("logged-in-as").innerText }
+      else { return document.REPLIER.post_as.options[index].innerText.split("»")[1].trim(); }
   },
   "author_id": () => {
-    if(!document.REPLIER?.post_as && !document.REPLIER?.post_as_username) return document.getElementById("logged-in-as").href.split("=")[1];
-     const index = document.REPLIER.post_as.options.selectedIndex;
-     if(!document.REPLIER.post_as) { return -1 }
-     else if(index===0) { return document.getElementById("logged-in-as").href.split("=")[1] }
-     else { return index }
+    if(!document.REPLIER?.post_as && !document.REPLIER?.post_as_username) return parsed.meta_data?.author_id || document.getElementById("logged-in-as").href.split("=")[1]
+      const index = document.REPLIER.post_as.options.selectedIndex;
+      if(!document.REPLIER.post_as) { return -1 }
+      else if(index===0) { return parsed.meta_data?.author_id || document.getElementById("logged-in-as").href.split("=")[1] }
+      else { return index }
   }
- }
- const normal_schema = {...default_mdata, ...schema.text};
- document.REPLIER.Post.setAttribute("data-visible", "false")
- document.REPLIER.Post.disabled = true
- const parsed = _parse_post(document.REPLIER.Post);
- _extra_fields(document.REPLIER.Post, schema.html, parsed.html)
- document.REPLIER.addEventListener("submit", (e) => _submit_post(e, normal_schema));
- document.REPLIER.Post.setAttribute("data-visible", "true")
- document.REPLIER.Post.disabled = false
- return parsed;
+  }
+  const normal_schema = {...default_mdata, ...schema.text};
+  document.REPLIER.addEventListener("submit", (e) => _submit_post(e, normal_schema));
+  document.REPLIER.Post.setAttribute("data-visible", "true")
+  document.REPLIER.Post.disabled = false
+  return parsed;
 }
