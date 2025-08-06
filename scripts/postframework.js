@@ -150,8 +150,8 @@ function bc_post_framework(...args){
   "author_name": () => {
     if(!document.REPLIER?.post_as && !document.REPLIER?.post_as_username) return parsed.meta_data?.author_name || document.getElementById("logged-in-as").innerText
       const index = document.REPLIER.post_as.options.selectedIndex;
-      if(!document.REPLIER.post_as) { return parsed.meta_data?.author_name || document.REPLIER.post_as_username.value }
-      else if(index===0) { return document.getElementById("logged-in-as").innerText }
+      if(!document.REPLIER.post_as) { return  document.REPLIER.post_as_username.value }
+      else if(index===0) { return parsed.meta_data?.author_name || document.getElementById("logged-in-as").innerText }
       else { return document.REPLIER.post_as.options[index].innerText.split("»")[1].trim(); }
   },
   "author_id": () => {
