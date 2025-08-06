@@ -167,7 +167,7 @@ function bc_post_style(...args) {
       ...data.meta_data.post_style_options,
     }
     const template_class = options.templates || "poststyle_templates"
-    const template_content = data.meta_data.post_style === "---" ? ("<post>${post}"+ (data.html.tag_user?"<br><br>${tags}":"") + "</post>") : Array.from(document.querySelector("template"+template+"."+template_class).content.childNodes).reduce((acc, curr) => acc += curr.outerHTML || curr.nodeValue || "","")
+    const template_content = data.meta_data.post_style === "---" ? ("<post>${post}"+ (data.html.tags?"<br><br>${tags}":"") + "</post>") : Array.from(document.querySelector("template"+template+"."+template_class).content.childNodes).reduce((acc, curr) => acc += curr.outerHTML || curr.nodeValue || "","")
     const template_content_replaced = template_content.replaceAll(/\$\{([^\.]*?)\}/g, (_,p1) => key_val[p1] ?? "").replaceAll(/\$\{(.*?)\.(.*?)\}/g, (_,p1,p2) => key_val[p1][p2] ?? "")
     return template_content_replaced
   }
