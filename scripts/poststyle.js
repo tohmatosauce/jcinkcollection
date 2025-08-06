@@ -228,4 +228,6 @@ function bc_post_style(...args) {
     bbcodes[i].name = tag
 		bbcodes[i].setAttribute("onclick", `simpletag("${tag}")`)
 	}
+
+  return framework;
 }
