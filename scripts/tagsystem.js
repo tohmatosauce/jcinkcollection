@@ -75,11 +75,11 @@ function bc_tag_system(...args) {
     container.querySelector(".pformright").append(tags_preview, tags_container)
   }
 
-  const _load_menu = (options) => {
-    const description = document.REPLIER.TopicDesc;
-    const split_desc = description.value.split("$");
+  const _load_menu = (forum_settings) => {
+    const tagfield = forum_settings.use_topic_title ? document.REPLIER.TopicTitle : document.REPLIER.TopicDesc;
+    const split_desc = tagfield.value.split("$");
     const tags = split_desc.slice(1, -1);
-    description.value = split_desc[split_desc.length - 1];
+    tagfield.value = split_desc[split_desc.length - 1];
     if (tags.length > 0) {
       for (const tag of tags) {
         const input = document.querySelector("#post-tag-options .tag_options[value='" + tag + "']");
@@ -104,7 +104,7 @@ function bc_tag_system(...args) {
     if (e.submitter.name !== "preview" && document.REPLIER.TopicTitle.value.length >= 2 && validate) {
       const checked_inputs = Array.from(document.querySelectorAll(".tag_container :checked"), e => e.value);
       if (checked_inputs.length > 0) {
-        const desc = document.REPLIER.TopicDesc,
+        const desc = forum_settings.use_topic_title ? document.REPLIER.TopicTitle : document.REPLIER.TopicDesc,
           post = document.REPLIER.Post;
         const new_desc = checked_inputs.reduce((acc, curr) => "$" + curr + acc, '$');
         const new_post = "<div class='tags' style='display: none'>" + checked_inputs.join(" ") + "</div>"
@@ -116,10 +116,10 @@ function bc_tag_system(...args) {
     return validate;
   }
 
-  const _tag_load = (options, description) => {
-    const split_desc = description.innerHTML.split("$");
+  const _tag_load = (options, trigger) => {
+    const split_desc = trigger.innerHTML.split("$");
     const tags = split_desc.slice(1, -1);
-    description.innerHTML = split_desc[split_desc.length - 1];
+    trigger.innerHTML = split_desc[split_desc.length - 1];
     const map = new Map(Array.from(options, e => Object.entries(e.tags)));
     const maps = Array.from(options, e => [e.menu, map]);
     const tags_arr = tags.map(tag => {
@@ -132,12 +132,12 @@ function bc_tag_system(...args) {
     return tags_arr.length > 0 ? tags_arr : false;
   }
 
-  if (document.REPLIER.TopicDesc) {
+  if (document.REPLIER.TopicDesc || document.REPLIER.TopicTitle) {
     _add_menu(options, forum_settings);
     _load_menu(options, forum_settings);
     document.REPLIER.addEventListener("submit", (e) => _tag_submit(e, options, forum_settings));
   } else {
-    for (const entry of forum_settings.description) {
+    for (const entry of forum_settings.triggers) {
       document.querySelectorAll(entry.selector).forEach(el => {
         const tags = _tag_load(options, el);
         if (tags.length > 0 && entry.callback) entry.callback(el, tags);

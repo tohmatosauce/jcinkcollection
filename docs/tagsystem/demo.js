@@ -39,12 +39,13 @@ const options = [
  }
 ];
 /*
-description: list of selectors that will trigger the script to identify topic descriptions with tags in them.
+triggers: list of selectors that will trigger the script to identify elements with tags in them.
 selector: a css selector
-callback: function that takes two arguments for the description element triggered and the list of tags found.
+use_topic_title: insert tag shorthands in topic title or topic description, depending on whether you're already using fizzyelf's bracket tags script
+callback: function that takes two arguments for the element triggered and the list of tags found.
 */
 const forum_settings = {
- description: [
+ triggers: [
   { 
    selector: ".forum-row .desc", 
    callback: (el, tags) => {
@@ -57,8 +58,8 @@ const forum_settings = {
     console.log(el, tags)
    }
   }
-  
- ]
+ ],
+ use_topic_title: false
 };
 
 bc_tag_system(options, forum_settings);

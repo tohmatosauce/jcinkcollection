@@ -9,7 +9,7 @@
    <p>Knowledge and ability to write basic JS scripts that manipulate the DOM.</p>
 
    <div class="para-start">Compatibility</div>
-   <p>This script can be used in conjunction with Fizzyelf’s <em>styled content warnings tag</em> script, or any other similar script that targets the topic title. Scripts that target the description may or may not work with JCINK Topic Tag Framework.</p>
+   <p>This script can be used in conjunction with Fizzyelf’s <em>styled content warnings tag</em> script, or any other similar script that targets the topic title. Scripts that target the description may or may not work with JCINK Topic Tag Framework unless it is set to use the topic title instead.</p>
    
    <div class="para-start">Installation</div>
    <p>Insert at the top of wrapper: 
@@ -29,12 +29,13 @@
      type: "checkbox or radio"
 }</note>
 <note def="forum_settings schema">{
-     description: [
+     triggers: [
       {
        selector: "css selector", 
        callback: function name(param1, param2)
       }
-     ]
+     ],
+     use_topic_title: boolean
 }</note>
    <p class="para-sub1">options (<code>array of objects</code>)</p>
    <p>Defines the topic tags. Topic tags are sorted into menus. This allows you to make different tagging options available depending on the forum, or organize types of tags into visual menus (e.g., tags for locations, factions, etc). Each entry is a JS object containing menu information:</p>
@@ -48,9 +49,9 @@
    </ol></note>
    <p><span class="para-important">options[].type (<code>string</code>)</span> Takes either <code>checkbox</code> or <code>radio</code>. This is the same as HTML input type. Checkboxes allows for multiple tags to be selected, while radios only allow for a single tag to be selected.</p>
    <p class="para-sub1">forum_settings (<code>object</code>)</p>
-   <p><span class="para-important">forum_settings.description (<code>array of objects</code>)</span> Adds initialisers to (1) clean up the tag id references so that the description isn’t preappended with $id1$id2$ type nonsense, (2) use custom scripting that can be executed for each element, similar to JS’s <code>forEach()</code>.</p>
-   <p><span class="para-important">forum_settings.description[].selector (<code>string</code>)</span> CSS Selector to an element with topic description text.</p>
-   <p><span class="para-important">forum_settings.description[].callback (<code>function</code>)</span> Optional. Function callback that is executed when the script goes to clean up any tag ids from the topic description. Two parameters are passed to the function callback. <code>param1</code> is the target element—again, similar to <code>forEach()</code>—and <code>param2</code> is an array of tags. Each entry has parameters for the tag’s <code>id</code>, <code>label</code>, and <code>menu</code>. For example, a basic callback function that prints the element node and its tags’ properties:</p>
+   <p><span class="para-important">forum_settings.triggers (<code>array of objects</code>)</span> Adds initialisers to (1) clean up the tag id references so that the description or title isn’t preappended with $id1$id2$ type nonsense, (2) use custom scripting that can be executed for each element, similar to JS’s <code>forEach()</code>.</p>
+   <p><span class="para-important">forum_settings.triggers[].selector (<code>string</code>)</span> CSS Selector to an element with topic description/title text.</p>
+   <p><span class="para-important">forum_settings.triggers[].callback (<code>function</code>)</span> Optional. Function callback that is executed when the script goes to clean up any tag ids from the topic description/title. Two parameters are passed to the function callback. <code>param1</code> is the target element—again, similar to <code>forEach()</code>—and <code>param2</code> is an array of tags. Each entry has parameters for the tag’s <code>id</code>, <code>label</code>, and <code>menu</code>. This is a basic callback function that prints the element node and its tags’ properties:</p>
 <note def="code">function callback(element, tags){
      console.log(element);
      for (const tag of tags) {
