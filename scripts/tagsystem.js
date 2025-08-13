@@ -107,8 +107,11 @@ function bc_tag_system(...args) {
         const desc = forum_settings.use_topic_title ? document.REPLIER.TopicTitle : document.REPLIER.TopicDesc,
           post = document.REPLIER.Post;
         const new_desc = checked_inputs.reduce((acc, curr) => "$" + curr + acc, '$');
-        const new_post = "<div class='tags' style='display: none'>" + checked_inputs.join(" ") + "</div>"
-        desc.value = new_desc + desc.value;
+        const old_desc = desc.value.split("$")
+        console.log(old_desc.filter(a => a !== "$" && checked_inputs.indexOf(a) < 0))
+        desc.value = new_desc + old_desc.filter(a => a !== "$" && checked_inputs.indexOf(a) < 0).join("")
+
+        // const new_post = "<div class='tags' style='display: none'>" + checked_inputs.join(" ") + "</div>"
         // forum_settings.post_snippet = forum_settings.post_snippet || new_post;
         // post.value = "[dohtml]"+forum_settings.post_snippet(checked_inputs)+"[/dohtml]" + post.value;
       }
