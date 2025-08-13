@@ -1,6 +1,9 @@
 #tag-user-menu td {
   padding-top:15px
 }
+
+#post-style-header, #options-header {display:none}
+
 .post-style-options {
   display: none;
 }
@@ -38,3 +41,4 @@ select[name='tag_user_view'] {
     border-bottom: 2px solid #fe9c67;
   }
 }
+
