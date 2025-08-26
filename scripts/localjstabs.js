@@ -1,4 +1,4 @@
-function bc_localjstabs(args) {
+function bc_local_tabs(args) {
  
  let defaults = {toggle:'',carousel:'',divyChar: '-'};
  let params = {...defaults, ...args}; // right-most object overwrites 
