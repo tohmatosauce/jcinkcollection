@@ -135,7 +135,7 @@ function bc_tag_system(...args) {
     return tags_arr.length > 0 ? tags_arr : false;
   }
 
-  if (document.REPLIER.TopicDesc || document.REPLIER.TopicTitle) {
+  if (document?.REPLIER?.TopicDesc || document?.REPLIER?.TopicTitle) {
     _add_menu(options, forum_settings);
     _load_menu(options, forum_settings);
     document.REPLIER.addEventListener("submit", (e) => _tag_submit(e, options, forum_settings));
