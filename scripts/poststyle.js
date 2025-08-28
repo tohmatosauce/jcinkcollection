@@ -30,7 +30,7 @@ function bc_post_style(...args) {
       tagmenu.id = "tag-user-menu";
       
 			const remove_tag = (tag, id, x) => {
-        document.REPLIER.tag_user.options[id].selected = false
+        document.REPLIER.tag_user.querySelector("option[value='"+id+"']").selected = false
         x.selected = false
         tag.remove()
         const tag_matcher = [...document.REPLIER.post_area_tag_user.value.matchAll(/\[user=.*?](.*?)\[\/user]|@\[(.*?)]/gim)].filter(u => u[2] === x.innerText || u[1] === x.innerText)
